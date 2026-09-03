@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\MahasiswaResource;
 use App\Http\Resources\PerwalianResource;
 use App\Models\Dosen;
+use App\Models\Mahasiswa;
 use App\Models\Perwalian;
 use App\Services\PerwalianService;
 use Illuminate\Http\JsonResponse;
@@ -65,7 +66,7 @@ class BimbinganController extends Controller
             ->paginate($request->input('per_page', 10))
             ->withQueryString();
 
-        $items->each(function (Dosen $m) {
+        $items->each(function (Mahasiswa $m) {
             $m->perwalian_menunggu = $m->perwalian()
                 ->where('status', 'menunggu_verifikasi')
                 ->count();

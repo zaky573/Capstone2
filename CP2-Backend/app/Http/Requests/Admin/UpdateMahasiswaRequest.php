@@ -27,6 +27,8 @@ class UpdateMahasiswaRequest extends FormRequest
             'alamat' => ['nullable', 'string', 'max:255'],
             'email' => ['nullable', 'email', 'max:150'],
             'dosen_wali_id' => ['nullable', 'exists:dosen,id'],
+            'tempat_lahir' => ['nullable', 'string', 'max:100'],
+            'tanggal_lahir' => ['nullable', 'date'],
         ];
     }
 }

@@ -22,6 +22,10 @@ class Perwalian extends Model
         'kendala',
         'rencana_studi',
         'komentar_dosen',
+        'tanggal_ketemu',
+        'jam_ketemu',
+        'lokasi_pertemuan',
+        'catatan_jadwal',
         'status',
         'verified_at',
     ];

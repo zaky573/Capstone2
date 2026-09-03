@@ -20,6 +20,8 @@ class MahasiswaResource extends JsonResource
             'semester' => $this->semester,
             'no_hp' => $this->no_hp,
             'alamat' => $this->alamat,
+            'tempat_lahir' => $this->tempat_lahir,
+            'tanggal_lahir' => $this->tanggal_lahir,
             'email' => $this->whenLoaded('user', $this->user?->email),
             'dosen_wali_id' => $this->dosen_wali_id,
             'dosen_wali' => new DosenResource($this->whenLoaded('dosenWali')),

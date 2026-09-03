@@ -44,22 +44,61 @@ export default function Topbar({ onMenuClick }) {
       elevation={0}
       sx={{ borderBottom: '1px solid #EAEEF4', bgcolor: '#FFFFFF' }}
     >
-      <Toolbar sx={{ justifyContent: 'space-between' }}>
-        <IconButton edge="start" onClick={onMenuClick} sx={{ display: { md: 'none' } }}>
-          <MenuIcon />
-        </IconButton>
-        <Typography variant="subtitle1" sx={{ fontWeight: 600, display: { xs: 'none', sm: 'block' } }}>
-          Sistem Pencatatan Perwalian Mahasiswa
-        </Typography>
-        <Typography variant="body2" sx={{ display: { xs: 'block', sm: 'none' }, fontWeight: 600 }}>
-          STMIK Bandung
-        </Typography>
+      <Toolbar sx={{ justifyContent: 'space-between', minHeight: { xs: 56, sm: 64 }, px: { xs: 1.5, sm: 2 } }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <IconButton edge="start" onClick={onMenuClick} sx={{ display: { md: 'none' } }}>
+            <MenuIcon />
+          </IconButton>
+          <Typography
+            variant="subtitle1"
+            sx={{
+              fontWeight: 600,
+              display: { xs: 'none', sm: 'block' },
+              fontSize: { sm: '0.875rem', md: '1rem' },
+            }}
+          >
+            Sistem Pencatatan Perwalian Mahasiswa
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{
+              display: { xs: 'block', sm: 'none' },
+              fontWeight: 600,
+              fontSize: '0.875rem',
+            }}
+          >
+            STMIK Bandung
+          </Typography>
+        </Box>
 
-        <IconButton onClick={(e) => setAnchorEl(e.currentTarget)} sx={{ gap: 1, textTransform: 'none' }}>
-          <Typography variant="body2" sx={{ fontWeight: 600, display: { xs: 'none', sm: 'block' } }}>
+        <IconButton
+          onClick={(e) => setAnchorEl(e.currentTarget)}
+          sx={{ gap: { xs: 0, sm: 1 }, textTransform: 'none', p: { xs: 0.5, sm: 1 } }}
+        >
+          <Typography
+            variant="body2"
+            sx={{
+              fontWeight: 600,
+              display: { xs: 'none', md: 'block' },
+              maxWidth: 120,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
             {user?.name}
           </Typography>
-          <Avatar src={user?.profile?.foto || user?.foto || undefined} sx={{ width: 34, height: 34, bgcolor: 'primary.main', fontSize: 14 }}>{initials}</Avatar>
+          <Avatar
+            src={user?.profile?.foto || user?.foto || undefined}
+            sx={{
+              width: { xs: 32, sm: 34 },
+              height: { xs: 32, sm: 34 },
+              bgcolor: 'primary.main',
+              fontSize: { xs: 12, sm: 14 },
+            }}
+          >
+            {initials}
+          </Avatar>
         </IconButton>
         <Menu anchorEl={anchorEl} open={openMenu} onClose={() => setAnchorEl(null)}>
           <MenuItem disabled>

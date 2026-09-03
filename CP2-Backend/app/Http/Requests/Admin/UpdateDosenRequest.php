@@ -23,6 +23,10 @@ class UpdateDosenRequest extends FormRequest
             'no_hp' => ['nullable', 'string', 'max:20'],
             'alamat' => ['nullable', 'string', 'max:255'],
             'email' => ['nullable', 'email', 'max:150'],
+            'tempat_lahir' => ['nullable', 'string', 'max:100'],
+            'tanggal_lahir' => ['nullable', 'date'],
+            'pendidikan_jurusan' => ['nullable', 'string', 'max:150'],
+            'pendidikan_universitas' => ['nullable', 'string', 'max:200'],
         ];
     }
 }

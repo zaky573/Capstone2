@@ -59,7 +59,11 @@ class PerwalianController extends Controller
     {
         $this->authorize('verify', $perwalian);
 
-        $perwalian = $this->perwalianService->updateStatus($perwalian, $request->input('status'));
+        $perwalian = $this->perwalianService->updateStatus(
+            $perwalian,
+            $request->input('status'),
+            $request->only(['tanggal_ketemu', 'jam_ketemu', 'lokasi_pertemuan', 'catatan_jadwal'])
+        );
 
         return response()->json([
             'message' => 'Status perwalian diubah menjadi '.$perwalian->status->label(),

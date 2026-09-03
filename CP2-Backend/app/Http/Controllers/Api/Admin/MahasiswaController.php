@@ -25,6 +25,10 @@ class MahasiswaController extends Controller
     {
         $items = $this->mahasiswaService->paginate($request->all());
 
+        $allProdis = array_values(Mahasiswa::pluck('program_studi')->filter()->unique()->sort()->values()->toArray());
+        $allAngkatan = array_values(Mahasiswa::pluck('angkatan')->filter()->unique()->values()->sort()->toArray());
+        $allSemester = array_values(Mahasiswa::pluck('semester')->filter()->unique()->values()->sort()->toArray());
+
         return response()->json([
             'message' => 'OK',
             'data' => MahasiswaResource::collection($items),
@@ -33,6 +37,11 @@ class MahasiswaController extends Controller
                 'per_page' => $items->perPage(),
                 'current_page' => $items->currentPage(),
                 'last_page' => $items->lastPage(),
+            ],
+            'filter_options' => [
+                'prodi' => $allProdis,
+                'angkatan' => array_map('strval', $allAngkatan),
+                'semester' => array_map('strval', $allSemester),
             ],
         ]);
     }

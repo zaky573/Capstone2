@@ -9,16 +9,11 @@ import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import InputAdornment from '@mui/material/InputAdornment'
 import Stack from '@mui/material/Stack'
-import Chip from '@mui/material/Chip'
-import Divider from '@mui/material/Divider'
 import Paper from '@mui/material/Paper'
 import Avatar from '@mui/material/Avatar'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
-import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'
-import BadgeIcon from '@mui/icons-material/Badge'
-import GroupsIcon from '@mui/icons-material/Groups'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import { keyframes } from '@mui/system'
 import { useAuth } from '../../hooks/useAuth'
@@ -40,12 +35,6 @@ const shimmer = keyframes`
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 `
-
-const DEMO_ACCOUNTS = [
-  { label: 'Admin', username: 'admin', password: 'admin123', icon: <AdminPanelSettingsIcon fontSize="small" />, color: '#4273B8', bg: 'rgba(66,115,184,0.08)' },
-  { label: 'Dosen', username: '0426018001', password: 'dosen123', icon: <BadgeIcon fontSize="small" />, color: '#7C3AED', bg: 'rgba(124,58,237,0.08)' },
-  { label: 'Mahasiswa', username: '211102001', password: 'mahasiswa123', icon: <GroupsIcon fontSize="small" />, color: '#059669', bg: 'rgba(5,150,105,0.08)' },
-]
 
 export default function Login() {
   const { login } = useAuth()
@@ -89,11 +78,6 @@ export default function Login() {
     }
   }
 
-  const fillDemo = (account) => {
-    setForm({ username: account.username, password: account.password })
-    if (error) setError('')
-  }
-
   return (
     <Box sx={{ width: '100%', maxWidth: 420 }}>
       {/* Card container */}
@@ -109,7 +93,7 @@ export default function Login() {
         }}
       >
         {/* Avatar + Header */}
-        <Stack alignItems="center" spacing={1.5} sx={{ mb: 3 }}>
+        <Stack spacing={1.5} sx={{ mb: 3, alignItems: 'center' }}>
           <Avatar
             sx={{
               width: 56,
@@ -300,63 +284,6 @@ export default function Login() {
         </Box>
       </Paper>
 
-      {/* Demo Accounts */}
-      <Box
-        sx={{
-          mt: 3,
-          mx: 2,
-          p: 2.5,
-          borderRadius: 3,
-          bgcolor: 'rgba(255,255,255,0.7)',
-          backdropFilter: 'blur(10px)',
-          border: '1px solid #E8EDF4',
-          animation: `${slideUp} 0.5s ease-out 0.5s both`,
-        }}
-      >
-        <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1.5 }}>
-          <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.08em', fontSize: '0.65rem' }}>
-            Akun Demo
-          </Typography>
-          <Divider sx={{ flex: 1, borderColor: '#E2E8F0' }} />
-        </Stack>
-        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-          {DEMO_ACCOUNTS.map((acc, i) => (
-            <Chip
-              key={acc.username}
-              icon={<Box sx={{ color: acc.color, display: 'flex', alignItems: 'center' }}>{acc.icon}</Box>}
-              label={
-                <Box component="span" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: 1.2 }}>
-                  <Box component="span" sx={{ fontSize: '0.7rem', fontWeight: 700, color: acc.color }}>{acc.label}</Box>
-                  <Box component="span" sx={{ fontSize: '0.65rem', color: '#64748B' }}>{acc.username}</Box>
-                </Box>
-              }
-              onClick={() => fillDemo(acc)}
-              variant="outlined"
-              size="small"
-              sx={{
-                cursor: 'pointer',
-                fontWeight: 500,
-                borderRadius: 2,
-                px: 0.5,
-                height: 'auto',
-                py: 0.75,
-                bgcolor: acc.bg,
-                borderColor: acc.color + '30',
-                '&:hover': {
-                  bgcolor: acc.color + '15',
-                  borderColor: acc.color + '50',
-                  boxShadow: `0 2px 12px ${acc.color}20`,
-                  transform: 'translateY(-1px)',
-                },
-                transition: 'all 0.25s ease',
-              }}
-            />
-          ))}
-        </Stack>
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1.5, fontSize: '0.7rem' }}>
-          Klik chip untuk auto-fill kredensial
-        </Typography>
-      </Box>
     </Box>
   )
 }

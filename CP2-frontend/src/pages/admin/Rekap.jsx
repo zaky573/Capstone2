@@ -374,7 +374,7 @@ export default function AdminRekap() {
         actions={
           <Stack direction="row" spacing={1}>
             <Button variant="contained" startIcon={<FileDownloadIcon />} onClick={downloadPdf} disabled={!data}>
-              Download PDF
+              Export PDF
             </Button>
           </Stack>
         }
@@ -383,7 +383,7 @@ export default function AdminRekap() {
       {/* Filter */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems={{ sm: 'center' }}>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ alignItems: { sm: 'center' } }}>
             <Select size="small" displayEmpty value={tahunAkademik} onChange={(e) => setTahunAkademik(e.target.value)} sx={{ minWidth: 180 }}>
               <MenuItem value=""><em>Semua Tahun Akademik</em></MenuItem>
               {taOptions.map((t) => (
@@ -414,7 +414,7 @@ export default function AdminRekap() {
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <Card sx={{ height: '100%' }}>
                 <CardContent>
-                  <Stack direction="row" justifyContent="space-between" alignItems="center">
+                  <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
                     <Box>
                       <Typography variant="body2" color="text.secondary">Total Mahasiswa</Typography>
                       <Typography variant="h4" sx={{ fontWeight: 700, color: '#122C4E' }}>{data.totals.jumlah_mahasiswa}</Typography>
@@ -427,7 +427,7 @@ export default function AdminRekap() {
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <Card sx={{ height: '100%' }}>
                 <CardContent>
-                  <Stack direction="row" justifyContent="space-between" alignItems="center">
+                  <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
                     <Box>
                       <Typography variant="body2" color="text.secondary">Total Perwalian</Typography>
                       <Typography variant="h4" sx={{ fontWeight: 700, color: '#122C4E' }}>{data.totals.total}</Typography>
@@ -440,7 +440,7 @@ export default function AdminRekap() {
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <Card sx={{ height: '100%' }}>
                 <CardContent>
-                  <Stack direction="row" justifyContent="space-between" alignItems="center">
+                  <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
                     <Box>
                       <Typography variant="body2" color="text.secondary">Selesai</Typography>
                       <Typography variant="h4" sx={{ fontWeight: 700, color: '#16A34A' }}>{data.totals.selesai}</Typography>
@@ -453,7 +453,7 @@ export default function AdminRekap() {
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <Card sx={{ height: '100%' }}>
                 <CardContent>
-                  <Stack direction="row" justifyContent="space-between" alignItems="center">
+                  <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
                     <Box>
                       <Typography variant="body2" color="text.secondary">Tingkat Selesai</Typography>
                       <Typography variant="h4" sx={{ fontWeight: 700, color: '#122C4E' }}>{data.totals.persentase_selesai}%</Typography>
@@ -468,7 +468,7 @@ export default function AdminRekap() {
           {/* Navigation Tabs */}
           <Card sx={{ mb: 3 }}>
             <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
-              <Tabs value={tab} onChange={(_, v) => setTab(v)}>
+              <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="scrollable" scrollButtons="auto" allowScrollButtonsMobile>
                 <Tab label="Ringkasan Prodi" />
                 <Tab label={`Detail Mahasiswa (${displayMahasiswa.length})`} />
                 <Tab label={`Dosen Wali (${displayDosen.length})`} />
@@ -484,7 +484,8 @@ export default function AdminRekap() {
                 {data.summary.length === 0 ? (
                   <EmptyState title="Tidak ada data rekap" />
                 ) : (
-                  <Table>
+                  <Box className="table-responsive">
+                  <Table size="small">
                     <TableHead>
                       <TableRow>
                         <TableCell>Program Studi</TableCell>
@@ -514,7 +515,7 @@ export default function AdminRekap() {
                           <TableCell align="center">{s.diverifikasi}</TableCell>
                           <TableCell align="center">{s.selesai}</TableCell>
                           <TableCell align="center">
-                            <Stack direction="row" spacing={1} alignItems="center" justifyContent="center">
+                            <Stack direction="row" spacing={1} sx={{ alignItems: 'center', justifyContent: 'center' }}>
                               <ProgressRing value={s.persentase_selesai} size={44} color={s.persentase_selesai >= 50 ? '#059669' : '#D97706'} />
                             </Stack>
                           </TableCell>
@@ -531,6 +532,7 @@ export default function AdminRekap() {
                       </TableRow>
                     </TableBody>
                   </Table>
+                  </Box>
                 )}
               </CardContent>
             </Card>
@@ -543,17 +545,18 @@ export default function AdminRekap() {
                 {displayMahasiswa.length === 0 ? (
                   <EmptyState title="Tidak ada data mahasiswa" />
                 ) : (
+                  <Box className="table-responsive">
                   <Table size="small">
                     <TableHead>
                       <TableRow>
                         <TableCell>NIM</TableCell>
                         <TableCell>Nama</TableCell>
-                        <TableCell>Prodi</TableCell>
-                        <TableCell align="center">Angkatan</TableCell>
-                        <TableCell align="center">Semester</TableCell>
-                        <TableCell>Dosen Wali</TableCell>
+                        <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Prodi</TableCell>
+                        <TableCell align="center" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Angkatan</TableCell>
+                        <TableCell align="center" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Semester</TableCell>
+                        <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>Dosen Wali</TableCell>
                         <TableCell align="center">Jumlah Perwalian</TableCell>
-                        <TableCell align="center">Menunggu Verifikasi</TableCell>
+                        <TableCell align="center" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Menunggu Verifikasi</TableCell>
                         <TableCell align="center">Selesai</TableCell>
                       </TableRow>
                     </TableHead>
@@ -562,12 +565,12 @@ export default function AdminRekap() {
                         <TableRow key={m.id} hover>
                           <TableCell>{m.nim}</TableCell>
                           <TableCell><Typography variant="body2" sx={{ fontWeight: 600 }}>{m.nama_lengkap}</Typography></TableCell>
-                          <TableCell>{m.program_studi}</TableCell>
-                          <TableCell align="center">{m.angkatan}</TableCell>
-                          <TableCell align="center">{m.semester}</TableCell>
-                          <TableCell>{m.dosen_wali}</TableCell>
+                          <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{m.program_studi}</TableCell>
+                          <TableCell align="center" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{m.angkatan}</TableCell>
+                          <TableCell align="center" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{m.semester}</TableCell>
+                          <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>{m.dosen_wali}</TableCell>
                           <TableCell align="center" sx={{ fontWeight: m.total_perwalian > 0 ? 700 : 400 }}>{m.total_perwalian}</TableCell>
-                          <TableCell align="center">
+                          <TableCell align="center" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
                             {m.menunggu > 0 ? <Chip label={m.menunggu} size="small" color="warning" variant="outlined" /> : '0'}
                           </TableCell>
                           <TableCell align="center">{m.selesai}</TableCell>
@@ -575,6 +578,7 @@ export default function AdminRekap() {
                       ))}
                     </TableBody>
                   </Table>
+                  </Box>
                 )}
               </CardContent>
             </Card>
@@ -587,14 +591,15 @@ export default function AdminRekap() {
                 {displayDosen.length === 0 ? (
                   <EmptyState title="Tidak ada data dosen" />
                 ) : (
-                  <Table>
+                  <Box className="table-responsive">
+                  <Table size="small">
                     <TableHead>
                       <TableRow>
                         <TableCell>Nama Dosen</TableCell>
-                        <TableCell>NIDN</TableCell>
+                        <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>NIDN</TableCell>
                         <TableCell align="center">Jumlah Mahasiswa Bimbingan</TableCell>
                         <TableCell align="center">Total Perwalian</TableCell>
-                        <TableCell align="center">Menunggu Verifikasi</TableCell>
+                        <TableCell align="center" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Menunggu Verifikasi</TableCell>
                         <TableCell align="center">Sudah Selesai</TableCell>
                       </TableRow>
                     </TableHead>
@@ -602,10 +607,10 @@ export default function AdminRekap() {
                       {displayDosen.map((d) => (
                         <TableRow key={d.id} hover>
                           <TableCell><Typography variant="body2" sx={{ fontWeight: 600 }}>{d.nama_lengkap}</Typography></TableCell>
-                          <TableCell>{d.nidn || '-'}</TableCell>
+                          <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{d.nidn || '-'}</TableCell>
                           <TableCell align="center">{d.jumlah_perwalian}</TableCell>
                           <TableCell align="center" sx={{ fontWeight: d.total_perwalian > 0 ? 700 : 400 }}>{d.total_perwalian}</TableCell>
-                          <TableCell align="center">
+                          <TableCell align="center" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
                             {d.menunggu > 0 ? <Chip label={d.menunggu} size="small" color="warning" variant="outlined" /> : '0'}
                           </TableCell>
                           <TableCell align="center">{d.selesai}</TableCell>
@@ -613,6 +618,7 @@ export default function AdminRekap() {
                       ))}
                     </TableBody>
                   </Table>
+                  </Box>
                 )}
               </CardContent>
             </Card>
@@ -625,14 +631,15 @@ export default function AdminRekap() {
                 {data.recent_perwalian.length === 0 ? (
                   <EmptyState title="Tidak ada data perwalian" />
                 ) : (
+                  <Box className="table-responsive">
                   <Table size="small">
                     <TableHead>
                       <TableRow>
                         <TableCell>Tanggal</TableCell>
                         <TableCell>Mahasiswa</TableCell>
-                        <TableCell>NIM</TableCell>
-                        <TableCell>Periode</TableCell>
-                        <TableCell>Uraian</TableCell>
+                        <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>NIM</TableCell>
+                        <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>Periode</TableCell>
+                        <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Uraian</TableCell>
                         <TableCell>Status</TableCell>
                       </TableRow>
                     </TableHead>
@@ -641,9 +648,9 @@ export default function AdminRekap() {
                         <TableRow key={p.id} hover>
                           <TableCell>{formatTanggalWaktu(p.created_at)}</TableCell>
                           <TableCell>{p.mahasiswa?.nama_lengkap}</TableCell>
-                          <TableCell>{p.mahasiswa?.nim}</TableCell>
-                          <TableCell>{p.tahun_akademik} ({SEMESTER_LABEL[p.semester]})</TableCell>
-                          <TableCell sx={{ maxWidth: 250 }}>
+                          <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{p.mahasiswa?.nim}</TableCell>
+                          <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>{p.tahun_akademik} ({SEMESTER_LABEL[p.semester]})</TableCell>
+                          <TableCell sx={{ maxWidth: 250, display: { xs: 'none', sm: 'table-cell' } }}>
                             <Typography variant="body2" sx={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                               {p.uraian}
                             </Typography>
@@ -653,6 +660,7 @@ export default function AdminRekap() {
                       ))}
                     </TableBody>
                   </Table>
+                  </Box>
                 )}
               </CardContent>
             </Card>

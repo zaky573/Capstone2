@@ -78,7 +78,7 @@ export default function MahasiswaPerwalianForm() {
 
   if (loading) {
     return (
-      <Stack alignItems="center" sx={{ py: 10 }}>
+      <Stack sx={{ alignItems: 'center', py: 10 }}>
         <CircularProgress />
       </Stack>
     )
@@ -105,6 +105,7 @@ export default function MahasiswaPerwalianForm() {
                   value={form.tahun_akademik}
                   onChange={handleChange}
                   fullWidth
+                  sx={{ flex: 1, minWidth: 0 }}
                 >
                   {TA_OPTIONS.map((t) => (
                     <MenuItem key={t} value={t}>
@@ -119,6 +120,7 @@ export default function MahasiswaPerwalianForm() {
                   value={form.semester}
                   onChange={handleChange}
                   fullWidth
+                  sx={{ flex: 1, minWidth: 0 }}
                 >
                   {SEMESTER_OPTIONS.map((s) => (
                     <MenuItem key={s} value={s}>

@@ -33,6 +33,9 @@ class DosenController extends Controller
                 'current_page' => $items->currentPage(),
                 'last_page' => $items->lastPage(),
             ],
+            'filter_options' => [
+                'prodi' => [],
+            ],
         ]);
     }
 

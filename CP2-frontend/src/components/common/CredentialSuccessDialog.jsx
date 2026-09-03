@@ -46,7 +46,7 @@ Silakan login di sistem perwalian dan ganti password Anda setelah masuk.`
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle sx={{ pb: 1 }}>
-        <Stack direction="row" spacing={1.5} alignItems="center">
+        <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
           <Box
             sx={{
               display: 'flex',
@@ -89,8 +89,8 @@ Silakan login di sistem perwalian dan ganti password Anda setelah masuk.`
           >
             <Stack spacing={2}>
               {/* Nama */}
-              <Stack direction="row" justifyContent="space-between" alignItems="center">
-                <Box>
+              <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                <Box sx={{ flex: 1, minWidth: 0 }}>
                   <Typography variant="caption" color="text.secondary" fontWeight={600}>
                     NAMA LENGKAP
                   </Typography>
@@ -127,7 +127,7 @@ Silakan login di sistem perwalian dan ganti password Anda setelah masuk.`
                   justifyContent: 'space-between',
                 }}
               >
-                <Stack direction="row" spacing={1.5} alignItems="center">
+                <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
                   <PersonIcon color="action" fontSize="small" />
                   <Box>
                     <Typography variant="caption" color="text.secondary">
@@ -161,7 +161,7 @@ Silakan login di sistem perwalian dan ganti password Anda setelah masuk.`
                   justifyContent: 'space-between',
                 }}
               >
-                <Stack direction="row" spacing={1.5} alignItems="center">
+                <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
                   <VpnKeyIcon color="action" fontSize="small" />
                   <Box>
                     <Typography variant="caption" color="text.secondary">

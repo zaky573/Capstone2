@@ -119,7 +119,7 @@ export default function Profile() {
 
       <Card>
         <CardContent>
-          <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 2 }}>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 2, alignItems: { xs: 'flex-start', sm: 'center' } }}>
             <Box sx={{ position: 'relative', display: 'inline-block' }}>
               <Avatar sx={{ width: 80, height: 80, fontSize: 32, bgcolor: '#4273B8' }}>
                 {photoPreview ? (
@@ -156,7 +156,7 @@ export default function Profile() {
           </Tabs>
 
           <TabPanel value={tab} index={0}>
-            <Stack spacing={2} sx={{ maxWidth: 560 }}>
+            <Stack spacing={2} sx={{ maxWidth: { xs: '100%', sm: 560 } }}>
               {formError && <Alert severity="error">{formError}</Alert>}
 
               {isMahasiswa && profileData && (
@@ -170,15 +170,16 @@ export default function Profile() {
                 </Typography>
               )}
 
-              <TextField label="Nama Lengkap *" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-              <TextField label="Email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-              <TextField label="No. HP" value={form.no_hp} onChange={(e) => setForm({ ...form, no_hp: e.target.value })} />
+              <TextField label="Nama Lengkap *" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} fullWidth />
+              <TextField label="Email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} fullWidth />
+              <TextField label="No. HP" value={form.no_hp} onChange={(e) => setForm({ ...form, no_hp: e.target.value })} fullWidth />
               <TextField
                 label="Alamat"
                 value={form.alamat}
                 onChange={(e) => setForm({ ...form, alamat: e.target.value })}
                 multiline
                 minRows={2}
+                fullWidth
               />
               <Button variant="contained" sx={{ alignSelf: 'flex-start' }} onClick={handleSaveProfile} disabled={saving}>
                 {saving ? 'Menyimpan...' : 'Simpan Profil'}
@@ -187,25 +188,28 @@ export default function Profile() {
           </TabPanel>
 
           <TabPanel value={tab} index={1}>
-            <Stack spacing={2} sx={{ maxWidth: 420 }}>
+            <Stack spacing={2} sx={{ maxWidth: { xs: '100%', sm: 420 } }}>
               {pwError && <Alert severity="error">{pwError}</Alert>}
               <TextField
                 label="Password Lama"
                 type="password"
                 value={pw.password_lama}
                 onChange={(e) => setPw({ ...pw, password_lama: e.target.value })}
+                fullWidth
               />
               <TextField
                 label="Password Baru (min. 8 karakter)"
                 type="password"
                 value={pw.password_baru}
                 onChange={(e) => setPw({ ...pw, password_baru: e.target.value })}
+                fullWidth
               />
               <TextField
                 label="Konfirmasi Password Baru"
                 type="password"
                 value={pw.password_konfirmasi}
                 onChange={(e) => setPw({ ...pw, password_konfirmasi: e.target.value })}
+                fullWidth
               />
               <Button variant="contained" sx={{ alignSelf: 'flex-start' }} onClick={handleSavePassword} disabled={savingPw}>
                 {savingPw ? 'Menyimpan...' : 'Ganti Password'}

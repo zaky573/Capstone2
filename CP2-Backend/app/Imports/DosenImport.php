@@ -31,19 +31,30 @@ class DosenImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFai
     public function model(array $row)
     {
         $nidn = trim((string) ($row['nidn'] ?? ''));
-        if ($nidn === '' || Dosen::where('nidn', $nidn)->exists()) {
+        if ($nidn === '') {
+            return null;
+        }
+
+        $existingDosen = Dosen::where('nidn', $nidn)->first();
+        if ($existingDosen) {
             return null;
         }
 
         return DB::transaction(function () use ($row, $nidn) {
-            $user = User::create([
-                'username' => $nidn,
-                'email' => ($row['email'] ?? null) ?: null,
-                'password' => AuthService::DEFAULT_PASSWORD_DOSEN,
-                'role' => UserRole::DOSEN,
-                'is_active' => true,
-                'must_change_password' => true,
-            ]);
+            $user = User::where('username', $nidn)->first();
+
+            if (!$user) {
+                $user = User::create([
+                    'username' => $nidn,
+                    'email' => ($row['email'] ?? null) ?: null,
+                    'password' => AuthService::DEFAULT_PASSWORD_DOSEN,
+                    'role' => UserRole::DOSEN,
+                    'is_active' => true,
+                    'must_change_password' => true,
+                ]);
+            } elseif (($row['email'] ?? null) && $user->email !== $row['email']) {
+                $user->update(['email' => $row['email']]);
+            }
 
             $this->imported++;
 
@@ -54,6 +65,10 @@ class DosenImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFai
                 'jenis_kelamin' => ($row['jenis_kelamin'] ?? null) ? strtoupper($row['jenis_kelamin']) : 'L',
                 'no_hp' => $row['no_hp'] ?? null,
                 'alamat' => $row['alamat'] ?? null,
+                'tempat_lahir' => $row['tempat_lahir'] ?? null,
+                'tanggal_lahir' => $row['tanggal_lahir'] ?? null,
+                'pendidikan_jurusan' => $row['pendidikan_jurusan'] ?? null,
+                'pendidikan_universitas' => $row['pendidikan_universitas'] ?? null,
             ]);
         });
     }

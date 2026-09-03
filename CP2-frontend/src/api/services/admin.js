@@ -43,36 +43,24 @@ export const importMahasiswa = async (file) => {
 }
 
 export const downloadMahasiswaTemplate = async () => {
-  const data = [
-    {
-      nim: '221102001',
-      nama_lengkap: 'Ahmad Fauzi',
-      email: 'ahmad@example.com',
-      jenis_kelamin: 'L',
-      program_studi: 'Teknik Informatika',
-      angkatan: 2024,
-      semester: 1,
-      no_hp: '081234567890',
-      alamat: 'Jl. Merdeka No. 1, Bandung',
-      nidn_dosen_wali: '0412345601',
-    },
-    {
-      nim: '221102002',
-      nama_lengkap: 'Siti Nurhaliza',
-      email: 'siti@example.com',
-      jenis_kelamin: 'P',
-      program_studi: 'Sistem Informasi',
-      angkatan: 2024,
-      semester: 1,
-      no_hp: '081234567891',
-      alamat: 'Jl. Sudirman No. 10, Bandung',
-      nidn_dosen_wali: '',
-    },
+  const headers = [
+    'NIM', 'Nama Lengkap', 'Email', 'Jenis Kelamin', 'Program Studi',
+    'Angkatan', 'Semester', 'No HP', 'Alamat', 'Tempat Lahir',
+    'Tanggal Lahir', 'NIDN Dosen Wali',
   ]
-  const worksheet = XLSX.utils.json_to_sheet(data)
-  const workbook = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Template Mahasiswa')
-  XLSX.writeFile(workbook, 'template_import_mahasiswa.xlsx')
+  const data = [
+    ['221102001', 'Ahmad Pratama', '', 'L', 'Teknik Informatika', '2024', '1', '081234567890', 'Jl. Merdeka No. 1, Bandung', 'Bandung', '2004-05-15', '0412345601'],
+    ['221102002', 'Siti Nurhaliza', '', 'P', 'Sistem Informasi', '2024', '1', '081234567891', 'Jl. Sudirman No. 10, Bandung', 'Jakarta', '2004-08-20', ''],
+  ]
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...data])
+  ws['!cols'] = [
+    { wch: 14 }, { wch: 25 }, { wch: 28 }, { wch: 18 }, { wch: 22 },
+    { wch: 10 }, { wch: 14 }, { wch: 16 }, { wch: 30 }, { wch: 16 },
+    { wch: 22 }, { wch: 24 },
+  ]
+  const wb = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb, ws, 'Template Mahasiswa')
+  XLSX.writeFile(wb, 'template_import_mahasiswa.xlsx')
 }
 
 export const getDosen = async (params) => {
@@ -110,28 +98,23 @@ export const importDosen = async (file) => {
 }
 
 export const downloadDosenTemplate = async () => {
-  const data = [
-    {
-      nidn: '0412345601',
-      nama_lengkap: 'Dr. Budi Santoso, M.Kom.',
-      email: 'budi@stmik-bandung.ac.id',
-      jenis_kelamin: 'L',
-      no_hp: '081234567899',
-      alamat: 'Jl. Dago No. 100, Bandung',
-    },
-    {
-      nidn: '0412345602',
-      nama_lengkap: 'Rina Marlina, S.Kom., M.T.',
-      email: 'rina@stmik-bandung.ac.id',
-      jenis_kelamin: 'P',
-      no_hp: '081234567898',
-      alamat: 'Jl. Riau No. 45, Bandung',
-    },
+  const headers = [
+    'NIDN', 'Nama Lengkap', 'Email', 'Jenis Kelamin', 'No HP', 'Alamat',
+    'Tempat Lahir', 'Tanggal Lahir', 'Pendidikan Jurusan',
+    'Pendidikan Universitas',
   ]
-  const worksheet = XLSX.utils.json_to_sheet(data)
-  const workbook = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Template Dosen')
-  XLSX.writeFile(workbook, 'template_import_dosen.xlsx')
+  const data = [
+    ['0412345601', 'Dr. Budi Santoso, M.Kom.', '', 'L', '081234567899', 'Jl. Dago No. 100, Bandung', 'Bandung', '1985-03-10', 'Teknik Informatika', 'Universitas Indonesia'],
+    ['0412345602', 'Rina Marlina, S.Kom., M.T.', '', 'P', '081234567898', 'Jl. Riau No. 45, Bandung', 'Jakarta', '1990-07-22', 'Sistem Informasi', 'Institut Teknologi Bandung'],
+  ]
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...data])
+  ws['!cols'] = [
+    { wch: 14 }, { wch: 30 }, { wch: 30 }, { wch: 18 }, { wch: 16 }, { wch: 30 },
+    { wch: 16 }, { wch: 22 }, { wch: 28 }, { wch: 30 },
+  ]
+  const wb = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb, ws, 'Template Dosen')
+  XLSX.writeFile(wb, 'template_import_dosen.xlsx')
 }
 
 export const getPenugasan = async (params) => {

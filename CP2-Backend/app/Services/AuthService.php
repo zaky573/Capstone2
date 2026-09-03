@@ -26,7 +26,19 @@ class AuthService
 
         if (! $user->is_active) {
             throw ValidationException::withMessages([
-                'username' => 'Akun Anda dinonaktifkan. Hubungi administrator.',
+                'username' => 'Username atau password salah.',
+            ]);
+        }
+
+        if ($user->isMahasiswa() && ! $user->mahasiswa) {
+            throw ValidationException::withMessages([
+                'username' => 'Username atau password salah.',
+            ]);
+        }
+
+        if ($user->isDosen() && ! $user->dosen) {
+            throw ValidationException::withMessages([
+                'username' => 'Username atau password salah.',
             ]);
         }
 

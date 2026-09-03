@@ -2,19 +2,20 @@ import { useEffect, useState } from 'react'
 import Grid from '@mui/material/Grid'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
-import Table from '@mui/material/Table'
-import TableHead from '@mui/material/TableHead'
-import TableBody from '@mui/material/TableBody'
-import TableRow from '@mui/material/TableRow'
-import TableCell from '@mui/material/TableCell'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 import Box from '@mui/material/Box'
+import Avatar from '@mui/material/Avatar'
+import Chip from '@mui/material/Chip'
+import Divider from '@mui/material/Divider'
 import GroupIcon from '@mui/icons-material/Group'
 import PendingActionsIcon from '@mui/icons-material/PendingActions'
 import VerifiedIcon from '@mui/icons-material/Verified'
 import TaskAltIcon from '@mui/icons-material/TaskAlt'
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
+import PeopleIcon from '@mui/icons-material/People'
+import AssignmentIcon from '@mui/icons-material/Assignment'
 import PageHeader from '../../components/common/PageHeader'
 import StatCard from '../../components/common/StatCard'
 import StatusBadge from '../../components/common/StatusBadge'
@@ -41,12 +42,16 @@ export default function DosenDashboard() {
   }, [snackbar])
 
   if (loading) return <Loading />
+  if (!data) return <EmptyState title="Data tidak ditemukan" subtitle="Silakan hubungi admin." />
 
   return (
     <>
-      <PageHeader title="Dashboard Dosen" subtitle="Pantau perwalian mahasiswa bimbingan Anda" />
+      <PageHeader
+        title="Dashboard Dosen"
+        subtitle="Pantau perwalian mahasiswa bimbingan Anda"
+      />
 
-      <Grid container spacing={2} sx={{ mb: 3 }}>
+      <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: { xs: 2, md: 3 } }}>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard title="Mahasiswa Bimbingan" value={data.jumlah_mahasiswa} icon={<GroupIcon />} color="primary" onClick={() => navigate('/dosen/mahasiswa-bimbingan')} />
         </Grid>
@@ -67,79 +72,161 @@ export default function DosenDashboard() {
         </Grid>
       </Grid>
 
-      <Grid container spacing={3}>
-        <Grid size={{ xs: 12, md: 7 }}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" sx={{ mb: 2 }}>
-                Perwalian Terbaru
-              </Typography>
+      <Grid container spacing={{ xs: 2, md: 3 }}>
+        <Grid size={{ xs: 12, lg: 7 }}>
+          <Card sx={{ height: '100%' }}>
+            <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+              <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center', mb: 2.5 }}>
+                <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
+                  <Box sx={{ width: 36, height: 36, borderRadius: 1.5, bgcolor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <AssignmentIcon sx={{ fontSize: 20, color: '#4273B8' }} />
+                  </Box>
+                  <Typography variant="h6" sx={{ fontWeight: 700, fontSize: { xs: '1rem', sm: '1.15rem' } }}>
+                    Perwalian Terbaru
+                  </Typography>
+                </Stack>
+                {data.recent.length > 0 && (
+                  <Button
+                    size="small"
+                    endIcon={<ArrowForwardIcon />}
+                    onClick={() => navigate('/dosen/perwalian')}
+                    sx={{ fontSize: '0.8rem', textTransform: 'none' }}
+                  >
+                    Lihat Semua
+                  </Button>
+                )}
+              </Stack>
+
               {data.recent.length === 0 ? (
-                <EmptyState title="Belum ada perwalian" subtitle="Perwalian dari mahasiswa bimbingan akan tampil di sini." />
+                <Box sx={{ py: 4 }}>
+                  <EmptyState
+                    title="Belum ada perwalian"
+                    subtitle="Perwalian dari mahasiswa bimbingan akan tampil di sini."
+                    icon={<AssignmentIcon sx={{ fontSize: 48, color: '#CBD5E1' }} />}
+                  />
+                </Box>
               ) : (
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Tanggal</TableCell>
-                      <TableCell>Mahasiswa</TableCell>
-                      <TableCell>NIM</TableCell>
-                      <TableCell>Semester</TableCell>
-                      <TableCell>Status</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {data.recent.map((p) => (
-                      <TableRow
-                        key={p.id}
-                        hover
-                        sx={{ cursor: 'pointer' }}
-                        onClick={() => navigate(`/dosen/perwalian/${p.id}`)}
-                      >
-                        <TableCell>{formatTanggalWaktu(p.created_at)}</TableCell>
-                        <TableCell>{p.mahasiswa?.nama_lengkap}</TableCell>
-                        <TableCell>{p.mahasiswa?.nim}</TableCell>
-                        <TableCell>
-                          {p.tahun_akademik} ({SEMESTER_LABEL[p.semester]})
-                        </TableCell>
-                        <TableCell>
+                <Stack spacing={0}>
+                  {data.recent.map((p, idx) => (
+                    <Box
+                      key={p.id}
+                      onClick={() => navigate(`/dosen/perwalian/${p.id}`)}
+                      sx={{
+                        py: 1.75,
+                        px: 1.5,
+                        borderRadius: 1.5,
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                        '&:hover': { bgcolor: '#F8FAFC' },
+                        ...(idx < data.recent.length - 1 && { borderBottom: '1px solid #F1F5F9' }),
+                      }}
+                    >
+                      <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'flex-start', gap: 1 }}>
+                        <Box sx={{ minWidth: 0, flex: 1 }}>
+                          <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 0.5 }}>
+                            <Avatar sx={{ width: 28, height: 28, fontSize: 12, bgcolor: '#4273B8', color: '#fff' }}>
+                              {(p.mahasiswa?.nama_lengkap || '?').charAt(0)}
+                            </Avatar>
+                            <Typography variant="body2" sx={{ fontWeight: 600, lineHeight: 1.4 }}>
+                              {p.mahasiswa?.nama_lengkap}
+                            </Typography>
+                          </Stack>
+                          <Typography variant="caption" color="text.secondary" sx={{ ml: 4.5, display: 'block' }}>
+                            {p.mahasiswa?.nim} · {p.tahun_akademik} ({SEMESTER_LABEL[p.semester]})
+                          </Typography>
+                        </Box>
+                        <Box sx={{ textAlign: 'right', flexShrink: 0 }}>
                           <StatusBadge status={p.status} />
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                            {formatTanggalWaktu(p.created_at)}
+                          </Typography>
+                        </Box>
+                      </Stack>
+                    </Box>
+                  ))}
+                </Stack>
               )}
             </CardContent>
           </Card>
         </Grid>
 
-        <Grid size={{ xs: 12, md: 5 }}>
+        <Grid size={{ xs: 12, lg: 5 }}>
           <Card sx={{ height: '100%' }}>
-            <CardContent>
-              <Stack justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
-                <Typography variant="h6">Mahasiswa Bimbingan</Typography>
-                <Button size="small" onClick={() => navigate('/dosen/mahasiswa-bimbingan')}>
-                  Lihat Semua
-                </Button>
+            <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+              <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center', mb: 2.5 }}>
+                <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
+                  <Box sx={{ width: 36, height: 36, borderRadius: 1.5, bgcolor: '#ECFDF5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <PeopleIcon sx={{ fontSize: 20, color: '#059669' }} />
+                  </Box>
+                  <Typography variant="h6" sx={{ fontWeight: 700, fontSize: { xs: '1rem', sm: '1.15rem' } }}>
+                    Mahasiswa Bimbingan
+                  </Typography>
+                </Stack>
+                {data.mahasiswa.length > 0 && (
+                  <Button
+                    size="small"
+                    endIcon={<ArrowForwardIcon />}
+                    onClick={() => navigate('/dosen/mahasiswa-bimbingan')}
+                    sx={{ fontSize: '0.8rem', textTransform: 'none' }}
+                  >
+                    Lihat Semua
+                  </Button>
+                )}
               </Stack>
+
               {data.mahasiswa.length === 0 ? (
-                <EmptyState title="Belum ada mahasiswa bimbingan" />
+                <Box sx={{ py: 4 }}>
+                  <EmptyState
+                    title="Belum ada mahasiswa bimbingan"
+                    subtitle="Mahasiswa akan muncul setelah ditugaskan oleh admin."
+                    icon={<PeopleIcon sx={{ fontSize: 48, color: '#CBD5E1' }} />}
+                  />
+                </Box>
               ) : (
-                data.mahasiswa.slice(0, 5).map((m) => (
-                  <Stack key={m.id} justifyContent="space-between" alignItems="center" sx={{ py: 1.25, borderBottom: '1px solid #f0f0f0', '&:last-child': { borderBottom: 'none' } }}>
-                    <Box>
-                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                        {m.nama_lengkap}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {m.nim} · Semester {m.semester}
-                      </Typography>
+                <Stack spacing={0}>
+                  {data.mahasiswa.slice(0, 6).map((m, idx) => (
+                    <Box
+                      key={m.id}
+                      sx={{
+                        py: 1.5,
+                        px: 1.5,
+                        borderRadius: 1.5,
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                        '&:hover': { bgcolor: '#F8FAFC' },
+                        ...(idx < Math.min(data.mahasiswa.length, 6) - 1 && { borderBottom: '1px solid #F1F5F9' }),
+                      }}
+                    >
+                      <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', minWidth: 0, flex: 1 }}>
+                          <Avatar sx={{ width: 36, height: 36, fontSize: 14, bgcolor: '#E0E7FF', color: '#4273B8', fontWeight: 600 }}>
+                            {(m.nama_lengkap || '?').split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase()}
+                          </Avatar>
+                          <Box sx={{ minWidth: 0 }}>
+                            <Typography variant="body2" sx={{ fontWeight: 600, lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {m.nama_lengkap}
+                            </Typography>
+                            <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center', mt: 0.25 }}>
+                              <Typography variant="caption" color="text.secondary">
+                                {m.nim}
+                              </Typography>
+                              <Typography variant="caption" color="text.disabled">·</Typography>
+                              <Chip label={`Sem ${m.semester}`} size="small" sx={{ height: 18, fontSize: '0.65rem', fontWeight: 600 }} />
+                            </Stack>
+                          </Box>
+                        </Stack>
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          onClick={() => navigate('/dosen/perwalian')}
+                          sx={{ fontSize: '0.72rem', textTransform: 'none', minWidth: 0, px: 1.5, flexShrink: 0 }}
+                        >
+                          Perwalian
+                        </Button>
+                      </Stack>
                     </Box>
-                    <Button size="small" onClick={() => navigate('/dosen/perwalian')}>
-                      Lihat Perwalian
-                    </Button>
-                  </Stack>
-                ))
+                  ))}
+                </Stack>
               )}
             </CardContent>
           </Card>

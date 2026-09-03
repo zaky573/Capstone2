@@ -12,6 +12,7 @@ import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 import InputAdornment from '@mui/material/InputAdornment'
 import Typography from '@mui/material/Typography'
+import Box from '@mui/material/Box'
 import SearchIcon from '@mui/icons-material/Search'
 import GroupIcon from '@mui/icons-material/Group'
 import PageHeader from '../../components/common/PageHeader'
@@ -56,20 +57,22 @@ export default function DosenBimbingan() {
 
       <Card>
         <CardContent>
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mb: 2 }}>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 1.5, sm: 1 }} sx={{ mb: 2 }} useFlexGap>
             <TextField
               size="small"
               placeholder="Cari NIM atau nama..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && setSearch(searchInput)}
-              sx={{ minWidth: 260 }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon fontSize="small" />
-                  </InputAdornment>
-                ),
+              sx={{ flex: 1, minWidth: 0 }}
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon fontSize="small" />
+                    </InputAdornment>
+                  ),
+                },
               }}
             />
             <Button variant="outlined" onClick={() => setSearch(searchInput)}>
@@ -82,15 +85,16 @@ export default function DosenBimbingan() {
           ) : rows.length === 0 ? (
             <EmptyState icon={<GroupIcon sx={{ fontSize: 48 }} />} title="Belum ada mahasiswa bimbingan" />
           ) : (
-            <Table>
+            <Box className="table-responsive">
+            <Table size="small">
               <TableHead>
                 <TableRow>
                   <TableCell>NIM</TableCell>
                   <TableCell>Nama</TableCell>
-                  <TableCell>Prodi</TableCell>
-                  <TableCell>Semester</TableCell>
+                  <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Prodi</TableCell>
+                  <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Semester</TableCell>
                   <TableCell align="center">Total Perwalian</TableCell>
-                  <TableCell align="center">Menunggu</TableCell>
+                  <TableCell align="center" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Menunggu</TableCell>
                   <TableCell align="right">Aksi</TableCell>
                 </TableRow>
               </TableHead>
@@ -101,10 +105,10 @@ export default function DosenBimbingan() {
                     <TableCell>
                       <Typography variant="body2" sx={{ fontWeight: 600 }}>{row.nama_lengkap}</Typography>
                     </TableCell>
-                    <TableCell>{row.program_studi}</TableCell>
-                    <TableCell>{row.semester}</TableCell>
+                    <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{row.program_studi}</TableCell>
+                    <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{row.semester}</TableCell>
                     <TableCell align="center">{row.jumlah_perwalian}</TableCell>
-                    <TableCell align="center">
+                    <TableCell align="center" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
                       {row.perwalian_menunggu > 0 ? (
                         <Typography color="warning.main" sx={{ fontWeight: 700 }}>
                           {row.perwalian_menunggu}
@@ -122,6 +126,7 @@ export default function DosenBimbingan() {
                 ))}
               </TableBody>
             </Table>
+            </Box>
           )}
 
           <TablePagination

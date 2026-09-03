@@ -119,75 +119,87 @@ export default function AdminPenugasan() {
       snackbar.error('Tidak ada mahasiswa untuk dosen ini')
       return
     }
-
     const { default: jsPDF } = await import('jspdf')
-    const { default: html2canvas } = await import('html2canvas')
+    const { default: autoTable } = await import('jspdf-autotable')
 
     const tanggal = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
-    const thS = 'background:#122C4E;color:#fff;padding:8px 10px;border:1px solid #0d1f38;text-align:left;'
-    const thC = 'background:#122C4E;color:#fff;padding:8px 10px;border:1px solid #0d1f38;text-align:center;'
 
-    const mhsRows = mahasiswaList.map((m, i) =>
-      `<tr style="background:${i % 2 === 0 ? '#f7f9fc' : '#fff'}">
-        <td style="padding:6px 8px;border:1px solid #ddd;text-align:center">${i + 1}</td>
-        <td style="padding:6px 8px;border:1px solid #ddd;white-space:nowrap">${m.nim || '-'}</td>
-        <td style="padding:6px 8px;border:1px solid #ddd">${m.nama_lengkap || '-'}</td>
-        <td style="padding:6px 8px;border:1px solid #ddd">${m.program_studi || '-'}</td>
-        <td style="padding:6px 8px;border:1px solid #ddd;text-align:center">${m.angkatan || '-'}</td>
-        <td style="padding:6px 8px;border:1px solid #ddd;text-align:center">${m.semester || '-'}</td>
-      </tr>`
-    ).join('')
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+    const pageW = doc.internal.pageSize.getWidth()
 
-    const container = document.createElement('div')
-    container.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:900px;background:#fff;padding:30px;font-family:Arial,sans-serif;font-size:11px;color:#111;'
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(16)
+    doc.setTextColor(18, 44, 78)
+    doc.text('Daftar Mahasiswa Bimbingan', pageW / 2, 15, { align: 'center' })
 
-    container.innerHTML = `
-      <div style="text-align:center;margin-bottom:18px;padding-bottom:14px;border-bottom:3px solid #122C4E">
-        <h1 style="margin:0;font-size:20px;color:#122C4E">Daftar Mahasiswa Bimbingan</h1>
-        <p style="margin:4px 0 0;color:#666;font-size:12px">Penugasan Dosen Wali STMIK Bandung</p>
-      </div>
-      <div style="margin:16px 0;padding:12px 16px;background:#f5f7fa;border-left:4px solid #122C4E;font-size:12px;border-radius:0 6px 6px 0">
-        <p style="margin:4px 0"><strong style="color:#122C4E;min-width:140px;display:inline-block">Nama Dosen:</strong> ${dosen.nama_lengkap || '-'}</p>
-        <p style="margin:4px 0"><strong style="color:#122C4E;min-width:140px;display:inline-block">NIDN:</strong> ${dosen.nidn || '-'}</p>
-        <p style="margin:4px 0"><strong style="color:#122C4E;min-width:140px;display:inline-block">Jumlah Mahasiswa:</strong> ${mahasiswaList.length}</p>
-      </div>
-      <table style="width:100%;border-collapse:collapse;margin-top:15px">
-        <thead>
-          <tr>
-            <th style="${thC};width:35px">No</th>
-            <th style="${thS};width:100px">NIM</th>
-            <th style="${thS}">Nama Lengkap</th>
-            <th style="${thS};width:160px">Program Studi</th>
-            <th style="${thC};width:70px">Angkatan</th>
-            <th style="${thC};width:65px">Semester</th>
-          </tr>
-        </thead>
-        <tbody>${mhsRows}</tbody>
-      </table>
-      <p style="margin-top:25px;font-size:10px;color:#999;text-align:center">Dokumen ini dibuat secara otomatis oleh Sistem Perwalian STMIK Bandung &bull; Dicetak: ${tanggal}</p>
-    `
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(10)
+    doc.setTextColor(100)
+    doc.text('Penugasan Dosen Wali STMIK Bandung', pageW / 2, 22, { align: 'center' })
 
-    document.body.appendChild(container)
-    try {
-      const canvas = await html2canvas(container, { scale: 2, useCORS: true, backgroundColor: '#fff' })
-      const imgData = canvas.toDataURL('image/png')
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
-      const pageW = pdf.internal.pageSize.getWidth()
-      const pageH = pdf.internal.pageSize.getHeight()
-      const imgH = (canvas.height * pageW) / canvas.width
-      let posY = 0
-      let remainH = imgH
-      while (remainH > 0) {
-        pdf.addImage(imgData, 'PNG', 0, -posY, pageW, imgH)
-        remainH -= pageH
-        posY += pageH
-        if (remainH > 0) pdf.addPage()
-      }
-      const safeName = (dosen.nama_lengkap || 'dosen').replace(/[^a-zA-Z0-9]/g, '_')
-      pdf.save(`penugasan-wali-${safeName}-${new Date().toISOString().slice(0, 10)}.pdf`)
-    } finally {
-      document.body.removeChild(container)
-    }
+    doc.setDrawColor(18, 44, 78)
+    doc.setLineWidth(0.5)
+    doc.line(14, 25, pageW - 14, 25)
+
+    doc.setFontSize(10)
+    doc.setTextColor(18, 44, 78)
+    doc.setFont('helvetica', 'bold')
+    doc.text(`Nama Dosen: ${dosen.nama_lengkap || '-'}`, 14, 32)
+    doc.text(`NIDN: ${dosen.nidn || '-'}`, 14, 38)
+    doc.text(`Jumlah Mahasiswa: ${mahasiswaList.length}`, 14, 44)
+    doc.text(`Dicetak: ${tanggal}`, 14, 50)
+
+    const head = [['No', 'NIM', 'Nama Lengkap', 'Program Studi', 'Angkatan', 'Semester']]
+
+    const body = mahasiswaList.map((m, i) => [
+      i + 1,
+      m.nim || '-',
+      m.nama_lengkap || '-',
+      m.program_studi || '-',
+      m.angkatan || '-',
+      m.semester || '-',
+    ])
+
+    autoTable(doc, {
+      head,
+      body,
+      startY: 55,
+      margin: { left: 14, right: 14 },
+      styles: {
+        fontSize: 9,
+        cellPadding: 3,
+        overflow: 'linebreak',
+        font: 'helvetica',
+      },
+      headStyles: {
+        fillColor: [18, 44, 78],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold',
+        fontSize: 9,
+        halign: 'center',
+      },
+      alternateRowStyles: {
+        fillColor: [247, 249, 252],
+      },
+      columnStyles: {
+        0: { halign: 'center', cellWidth: 14 },
+        1: { cellWidth: 28 },
+        2: { cellWidth: 55 },
+        3: { cellWidth: 45 },
+        4: { halign: 'center', cellWidth: 22 },
+        5: { halign: 'center', cellWidth: 22 },
+      },
+      didDrawPage: (data) => {
+        const footerY = doc.internal.pageSize.getHeight() - 8
+        doc.setFontSize(8)
+        doc.setTextColor(170)
+        doc.text('Dokumen ini dibuat secara otomatis oleh Sistem Perwalian STMIK Bandung', pageW / 2, footerY, { align: 'center' })
+        doc.text(`Halaman ${doc.internal.getCurrentPageInfo().pageNumber}`, pageW - 14, footerY, { align: 'right' })
+      },
+    })
+
+    const safeName = (dosen.nama_lengkap || 'dosen').replace(/[^a-zA-Z0-9]/g, '_')
+    doc.save(`penugasan-wali-${safeName}-${new Date().toISOString().slice(0, 10)}.pdf`)
     setPrintDialogOpen(false)
     setSelectedDosenForPrint(null)
   }
@@ -199,7 +211,7 @@ export default function AdminPenugasan() {
         subtitle="Melihat daftar mahasiswa bimbingan per dosen wali"
         actions={
           <Button variant="outlined" startIcon={<PictureAsPdfIcon />} onClick={() => setPrintDialogOpen(true)}>
-            Download PDF
+            Export PDF
           </Button>
         }
       />
@@ -213,13 +225,15 @@ export default function AdminPenugasan() {
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              sx={{ minWidth: 300 }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon fontSize="small" />
-                  </InputAdornment>
-                ),
+              sx={{ flex: 1, minWidth: 0 }}
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon fontSize="small" />
+                    </InputAdornment>
+                  ),
+                },
               }}
             />
             <Button variant="outlined" onClick={handleSearch}>
@@ -242,8 +256,8 @@ export default function AdminPenugasan() {
               return (
                 <Card key={dosen.id} sx={{ mb: 2, border: '1px solid #e0e0e0' }}>
                   <CardContent sx={{ pb: '12px !important' }}>
-                    <Stack direction="row" alignItems="center" justifyContent="space-between">
-                      <Stack direction="row" alignItems="center" spacing={2}>
+                    <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
+                      <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
                         <Box>
                           <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                             {dosen.nama_lengkap}
@@ -270,36 +284,36 @@ export default function AdminPenugasan() {
                             Belum ada mahasiswa yang ditugaskan.
                           </Typography>
                         ) : (
-                          <Table size="small">
-                            <TableHead>
-                              <TableRow>
-                                <TableCell>No</TableCell>
-                                <TableCell>NIM</TableCell>
-                                <TableCell>Nama</TableCell>
-                                <TableCell>Prodi</TableCell>
-                                <TableCell>Angkatan</TableCell>
-                                <TableCell>Semester</TableCell>
-                                <TableCell>Status</TableCell>
-                              </TableRow>
-                            </TableHead>
-                            <TableBody>
-                              {mahasiswaList.map((m, idx) => (
-                                <TableRow key={m.id} hover>
-                                  <TableCell>{idx + 1}</TableCell>
-                                  <TableCell>{m.nim}</TableCell>
-                                  <TableCell>
-                                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                                      {m.nama_lengkap}
-                                    </Typography>
-                                  </TableCell>
-                                  <TableCell>{m.program_studi}</TableCell>
-                                  <TableCell>{m.angkatan}</TableCell>
-                                  <TableCell>{m.semester}</TableCell>
-                                  <TableCell>{m.status || '-'}</TableCell>
+                          <Box className="table-responsive">
+                            <Table size="small">
+                              <TableHead>
+                                <TableRow>
+                                  <TableCell>No</TableCell>
+                                  <TableCell>NIM</TableCell>
+                                  <TableCell>Nama</TableCell>
+                                  <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Prodi</TableCell>
+                                  <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Angkatan</TableCell>
+                                  <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Semester</TableCell>
                                 </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
+                              </TableHead>
+                              <TableBody>
+                                {mahasiswaList.map((m, idx) => (
+                                  <TableRow key={m.id} hover>
+                                    <TableCell>{idx + 1}</TableCell>
+                                    <TableCell>{m.nim}</TableCell>
+                                    <TableCell>
+                                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                        {m.nama_lengkap}
+                                      </Typography>
+                                    </TableCell>
+                                    <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{m.program_studi}</TableCell>
+                                    <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{m.angkatan}</TableCell>
+                                    <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{m.semester}</TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </Box>
                         )}
                       </Box>
                     </Collapse>
@@ -312,10 +326,10 @@ export default function AdminPenugasan() {
       </Card>
 
       <Dialog open={printDialogOpen} onClose={() => { setPrintDialogOpen(false); setSelectedDosenForPrint(null) }} maxWidth="sm" fullWidth>
-        <DialogTitle>Download PDF Mahasiswa Bimbingan</DialogTitle>
+        <DialogTitle>Export PDF Mahasiswa Bimbingan</DialogTitle>
         <DialogContent>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Pilih dosen wali untuk mengunduh PDF daftar mahasiswa bimbingan.
+            Pilih dosen wali untuk mengekspor PDF daftar mahasiswa bimbingan.
           </Typography>
           <Autocomplete
             options={dosenList}
@@ -364,7 +378,7 @@ export default function AdminPenugasan() {
             onClick={handlePrintPdf}
             disabled={!selectedDosenForPrint}
           >
-            Download PDF
+            Export PDF
           </Button>
         </DialogActions>
       </Dialog>

@@ -11,7 +11,7 @@ class DosenWaliController extends Controller
 {
     public function show(Request $request): JsonResponse
     {
-        $dosenWali = $request->user()->mahasiswa?->dosenWali;
+        $dosenWali = $request->user()->mahasiswa?->dosenWali?->load('user');
 
         return response()->json([
             'message' => 'OK',

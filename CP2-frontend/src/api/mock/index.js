@@ -601,6 +601,7 @@ export const getMahasiswaDashboard = async () => {
       dosen_wali: m.dosen_wali_id ? findDosen(m.dosen_wali_id) : null,
       total_perwalian: rows.length,
       menunggu_verifikasi: rows.filter((p) => p.status === 'menunggu_verifikasi').length,
+      selesai: rows.filter((p) => p.status === 'selesai').length,
       perwalian_terakhir: last ? perwalianFull(last) : null,
     },
   }

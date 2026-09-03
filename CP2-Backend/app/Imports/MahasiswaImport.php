@@ -48,14 +48,20 @@ class MahasiswaImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
         }
 
         return DB::transaction(function () use ($row, $nim) {
-            $user = User::create([
-                'username' => $nim,
-                'email' => ($row['email'] ?? null) ?: null,
-                'password' => AuthService::DEFAULT_PASSWORD_MAHASISWA,
-                'role' => UserRole::MAHASISWA,
-                'is_active' => true,
-                'must_change_password' => true,
-            ]);
+            $user = User::where('username', $nim)->first();
+
+            if (!$user) {
+                $user = User::create([
+                    'username' => $nim,
+                    'email' => ($row['email'] ?? null) ?: null,
+                    'password' => AuthService::DEFAULT_PASSWORD_MAHASISWA,
+                    'role' => UserRole::MAHASISWA,
+                    'is_active' => true,
+                    'must_change_password' => true,
+                ]);
+            } elseif (($row['email'] ?? null) && $user->email !== $row['email']) {
+                $user->update(['email' => $row['email']]);
+            }
 
             $this->imported++;
 
@@ -69,6 +75,8 @@ class MahasiswaImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
                 'semester' => $row['semester'] ?? 1,
                 'no_hp' => $row['no_hp'] ?? null,
                 'alamat' => $row['alamat'] ?? null,
+                'tempat_lahir' => $row['tempat_lahir'] ?? null,
+                'tanggal_lahir' => $row['tanggal_lahir'] ?? null,
                 'dosen_wali_id' => $this->mapDosenWali($row['nidn_dosen_wali'] ?? null),
             ]);
         });

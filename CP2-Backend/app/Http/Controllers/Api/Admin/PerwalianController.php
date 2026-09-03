@@ -56,6 +56,21 @@ class PerwalianController extends Controller
     {
         $items = $this->perwalianService->paginateForAdmin($request->all());
 
+        $allTa = Perwalian::query()
+            ->select('tahun_akademik')
+            ->distinct()
+            ->orderByDesc('tahun_akademik')
+            ->pluck('tahun_akademik')
+            ->toArray();
+
+        $allSemester = Perwalian::query()
+            ->select('semester')
+            ->distinct()
+            ->orderBy('semester')
+            ->pluck('semester')
+            ->map(fn ($s) => is_string($s) ? $s : $s->label())
+            ->toArray();
+
         return response()->json([
             'message' => 'OK',
             'data' => PerwalianResource::collection($items),
@@ -64,6 +79,10 @@ class PerwalianController extends Controller
                 'per_page' => $items->perPage(),
                 'current_page' => $items->currentPage(),
                 'last_page' => $items->lastPage(),
+            ],
+            'filter_options' => [
+                'tahun_akademik' => $allTa,
+                'semester' => $allSemester,
             ],
         ]);
     }

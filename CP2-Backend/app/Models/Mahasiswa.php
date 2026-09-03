@@ -24,6 +24,8 @@ class Mahasiswa extends Model
         'no_hp',
         'alamat',
         'dosen_wali_id',
+        'tempat_lahir',
+        'tanggal_lahir',
     ];
 
     public function user(): BelongsTo

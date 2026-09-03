@@ -7,6 +7,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -30,6 +31,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (NotFoundHttpException $e, Request $request) {
             if ($request->is('api/*') || $request->expectsJson()) {
                 return response()->json(['message' => 'Resource tidak ditemukan'], 404);
+            }
+        });
+
+        $exceptions->render(function (HttpException $e, Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                return response()->json(['message' => $e->getMessage() ?: 'Forbidden'], $e->getStatusCode());
             }
         });
 

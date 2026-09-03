@@ -100,33 +100,35 @@ export default function AdminPerwalian() {
 
       <Card>
         <CardContent>
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mb: 2 }}>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 1.5, sm: 1 }} sx={{ mb: 2 }} useFlexGap>
             <TextField
               size="small"
               placeholder="Cari NIM atau nama mahasiswa..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && setSearch(searchInput)}
-              sx={{ minWidth: 260 }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon fontSize="small" />
-                  </InputAdornment>
-                ),
+              sx={{ flex: 1, minWidth: 0 }}
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon fontSize="small" />
+                    </InputAdornment>
+                  ),
+                },
               }}
             />
             <Button variant="outlined" onClick={() => setSearch(searchInput)}>
               Cari
             </Button>
-            <Select size="small" value={status} onChange={(e) => { setStatus(e.target.value); setPage(0) }} displayEmpty sx={{ minWidth: 200 }}>
+            <Select size="small" value={status} onChange={(e) => { setStatus(e.target.value); setPage(0) }} displayEmpty sx={{ minWidth: { xs: '100%', sm: 200 } }}>
               {STATUS_PERWALIAN_FILTER.map((s) => (
                 <MenuItem key={s.value} value={s.value}>
                   {s.label}
                 </MenuItem>
               ))}
             </Select>
-            <Select size="small" value={filterTa} onChange={(e) => { setFilterTa(e.target.value); setPage(0) }} displayEmpty sx={{ minWidth: 180 }}>
+            <Select size="small" value={filterTa} onChange={(e) => { setFilterTa(e.target.value); setPage(0) }} displayEmpty sx={{ minWidth: { xs: '100%', sm: 180 } }}>
               <MenuItem value="">Semua Tahun Akademik</MenuItem>
               {taList.map((t) => (
                 <MenuItem key={t} value={t}>{t}</MenuItem>
@@ -139,40 +141,42 @@ export default function AdminPerwalian() {
           ) : rows.length === 0 ? (
             <EmptyState icon={<EventNoteIcon sx={{ fontSize: 48 }} />} title="Tidak ada data perwalian" />
           ) : (
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Tanggal</TableCell>
-                  <TableCell>Mahasiswa</TableCell>
-                  <TableCell>NIM</TableCell>
-                  <TableCell>Semester</TableCell>
-                  <TableCell>Dosen Wali</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell align="right">Aksi</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {rows.map((row) => (
-                  <TableRow key={row.id} hover>
-                    <TableCell>{formatTanggalWaktu(row.created_at)}</TableCell>
-                    <TableCell>{row.mahasiswa?.nama_lengkap}</TableCell>
-                    <TableCell>{row.mahasiswa?.nim}</TableCell>
-                    <TableCell>
-                      {row.tahun_akademik} ({SEMESTER_LABEL[row.semester]})
-                    </TableCell>
-                    <TableCell>{row.mahasiswa?.dosen_wali?.nama_lengkap || '-'}</TableCell>
-                    <TableCell>
-                      <StatusBadge status={row.status} />
-                    </TableCell>
-                    <TableCell align="right">
-                      <Button size="small" startIcon={<VisibilityIcon />} onClick={() => openDetail(row.id)}>
-                        Detail
-                      </Button>
-                    </TableCell>
+            <Box className="table-responsive">
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Tanggal</TableCell>
+                    <TableCell>Mahasiswa</TableCell>
+                    <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>NIM</TableCell>
+                    <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Semester</TableCell>
+                    <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Dosen Wali</TableCell>
+                    <TableCell>Status</TableCell>
+                    <TableCell align="right">Aksi</TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHead>
+                <TableBody>
+                  {rows.map((row) => (
+                    <TableRow key={row.id} hover>
+                      <TableCell>{formatTanggalWaktu(row.created_at)}</TableCell>
+                      <TableCell>{row.mahasiswa?.nama_lengkap}</TableCell>
+                      <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>{row.mahasiswa?.nim}</TableCell>
+                      <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
+                        {row.tahun_akademik} ({SEMESTER_LABEL[row.semester]})
+                      </TableCell>
+                      <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{row.mahasiswa?.dosen_wali?.nama_lengkap || '-'}</TableCell>
+                      <TableCell>
+                        <StatusBadge status={row.status} />
+                      </TableCell>
+                      <TableCell align="right">
+                        <Button size="small" startIcon={<VisibilityIcon />} onClick={() => openDetail(row.id)}>
+                          Detail
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Box>
           )}
 
           <TablePagination
@@ -189,11 +193,11 @@ export default function AdminPerwalian() {
       {/* Dialog Detail Perwalian (Read-only for Admin) */}
       <Dialog open={detailOpen} onClose={() => setDetailOpen(false)} maxWidth="md" fullWidth>
         <DialogTitle sx={{ pb: 1.5, borderBottom: '1px solid #E2E8F0' }}>
-          <Stack direction="row" justifyContent="space-between" alignItems="center">
+          <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
             <Typography variant="h6" sx={{ fontWeight: 700, color: '#122C4E' }}>
               Detail Perwalian
             </Typography>
-            <Stack direction="row" spacing={1.5} alignItems="center">
+            <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
               {detail && <StatusBadge status={detail.status} />}
               <IconButton size="small" onClick={() => setDetailOpen(false)}>
                 <CloseIcon fontSize="small" />
@@ -211,7 +215,7 @@ export default function AdminPerwalian() {
               <Box sx={{ p: 2, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #E2E8F0' }}>
                 <Grid container spacing={2}>
                   <Grid size={{ xs: 12, sm: 6 }}>
-                    <Stack direction="row" spacing={1.5} alignItems="center">
+                    <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
                       <Box sx={{ p: 1, borderRadius: 1.5, bgcolor: '#EEF2FF', color: '#4273B8' }}>
                         <PersonIcon fontSize="small" />
                       </Box>
@@ -228,7 +232,7 @@ export default function AdminPerwalian() {
                   </Grid>
 
                   <Grid size={{ xs: 12, sm: 6 }}>
-                    <Stack direction="row" spacing={1.5} alignItems="center">
+                    <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
                       <Box sx={{ p: 1, borderRadius: 1.5, bgcolor: '#F0FDF4', color: '#16A34A' }}>
                         <SchoolIcon fontSize="small" />
                       </Box>
@@ -278,7 +282,7 @@ export default function AdminPerwalian() {
 
               {/* Uraian Konsultasi */}
               <Box>
-                <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
+                  <Stack direction="row" spacing={1} sx={{ mb: 1, alignItems: 'center' }}>
                   <DescriptionOutlinedIcon fontSize="small" sx={{ color: '#4273B8' }} />
                   <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#122C4E' }}>
                     Uraian Konsultasi
@@ -310,21 +314,21 @@ export default function AdminPerwalian() {
                   <Grid container spacing={1.5}>
                     {detail.lokasi_pertemuan && (
                       <Grid size={{ xs: 12, sm: 4 }}>
-                        <Stack direction="row" spacing={1} alignItems="center">
+                        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
                           <PlaceIcon fontSize="small" sx={{ color: '#B45309' }} />
                           <Typography variant="body2">{detail.lokasi_pertemuan}</Typography>
                         </Stack>
                       </Grid>
                     )}
                     <Grid size={{ xs: 12, sm: 4 }}>
-                      <Stack direction="row" spacing={1} alignItems="center">
+                      <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
                         <CalendarMonthIcon fontSize="small" sx={{ color: '#B45309' }} />
                         <Typography variant="body2">{detail.tanggal_ketemu}</Typography>
                       </Stack>
                     </Grid>
                     {detail.jam_ketemu && (
                       <Grid size={{ xs: 12, sm: 4 }}>
-                        <Stack direction="row" spacing={1} alignItems="center">
+                        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
                           <AccessTimeIcon fontSize="small" sx={{ color: '#B45309' }} />
                           <Typography variant="body2">{detail.jam_ketemu}</Typography>
                         </Stack>
@@ -344,7 +348,7 @@ export default function AdminPerwalian() {
               {/* Catatan Dosen Wali (jika ada) */}
               {detail.catatan_dosen && (
                 <Box>
-                  <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
+                <Stack direction="row" spacing={1} sx={{ mb: 1, alignItems: 'center' }}>
                     <CommentOutlinedIcon fontSize="small" sx={{ color: '#16A34A' }} />
                     <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#122C4E' }}>
                       Catatan Dosen Wali

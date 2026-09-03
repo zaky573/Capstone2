@@ -98,9 +98,9 @@ export default function AuthLayout({ children }) {
 
         {/* Content */}
         <Stack
-          alignItems="center"
           spacing={3}
           sx={{
+            alignItems: 'center',
             position: 'relative',
             zIndex: 1,
             animation: `${slideUp} 0.8s ease-out`,
@@ -115,7 +115,7 @@ export default function AuthLayout({ children }) {
             }}
           />
 
-          <Stack alignItems="center" spacing={0.5}>
+          <Stack spacing={0.5} sx={{ alignItems: 'center' }}>
             <Typography variant="h4" sx={{ fontWeight: 800, color: '#fff', letterSpacing: '-0.02em', textAlign: 'center' }}>
               STMIK Bandung
             </Typography>
@@ -260,9 +260,9 @@ export default function AuthLayout({ children }) {
         ))}
         {/* Mobile logo */}
         <Stack
-          alignItems="center"
           spacing={1}
           sx={{
+            alignItems: 'center',
             display: { xs: 'flex', md: 'none' },
             mb: 4,
             animation: `${slideUp} 0.6s ease-out`,

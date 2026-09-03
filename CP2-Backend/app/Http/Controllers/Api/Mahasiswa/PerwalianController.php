@@ -20,17 +20,40 @@ class PerwalianController extends Controller
     public function dashboard(Request $request): JsonResponse
     {
         $mahasiswa = $request->user()->mahasiswa;
+
+        if (!$mahasiswa) {
+            return response()->json([
+                'message' => 'Data mahasiswa tidak ditemukan',
+                'data' => null,
+            ], 404);
+        }
+
         $rows = $mahasiswa->perwalian()->get();
         $last = $rows->sortByDesc('created_at')->first();
+
+        $dosenWali = $mahasiswa->dosenWali;
+        if ($dosenWali) {
+            $dosenWali->load('user');
+        }
+
+        $lastPerwalian = null;
+        if ($last) {
+            $last->load('mahasiswa');
+            if ($last->mahasiswa?->dosenWali) {
+                $last->mahasiswa->dosenWali->load('user');
+            }
+            $lastPerwalian = new PerwalianResource($last);
+        }
 
         return response()->json([
             'message' => 'OK',
             'data' => [
-                'mahasiswa' => $mahasiswa->load(['user', 'dosenWali']),
-                'dosen_wali' => $mahasiswa->dosenWali,
+                'mahasiswa' => $mahasiswa->load(['user', 'dosenWali.user']),
+                'dosen_wali' => $dosenWali ? new \App\Http\Resources\DosenResource($dosenWali) : null,
                 'total_perwalian' => $rows->count(),
                 'menunggu_verifikasi' => $rows->where('status', 'menunggu_verifikasi')->count(),
-                'perwalian_terakhir' => $last ? new PerwalianResource($last->load('mahasiswa.dosenWali')) : null,
+                'selesai' => $rows->where('status', 'selesai')->count(),
+                'perwalian_terakhir' => $lastPerwalian,
             ],
         ]);
     }

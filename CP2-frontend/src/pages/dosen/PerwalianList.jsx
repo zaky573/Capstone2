@@ -16,6 +16,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility'
 import EventNoteIcon from '@mui/icons-material/EventNote'
 import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
+import Box from '@mui/material/Box'
 import PageHeader from '../../components/common/PageHeader'
 import StatusBadge from '../../components/common/StatusBadge'
 import EmptyState from '../../components/common/EmptyState'
@@ -69,20 +70,22 @@ export default function DosenPerwalianList() {
 
       <Card>
         <CardContent>
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mb: 2 }}>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 1.5, sm: 1 }} sx={{ mb: 2 }} useFlexGap>
             <TextField
               size="small"
               placeholder="Cari NIM atau nama mahasiswa..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && setSearch(searchInput)}
-              sx={{ minWidth: 260 }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon fontSize="small" />
-                  </InputAdornment>
-                ),
+              sx={{ flex: 1, minWidth: 0 }}
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon fontSize="small" />
+                    </InputAdornment>
+                  ),
+                },
               }}
             />
             <Button variant="outlined" onClick={() => setSearch(searchInput)}>
@@ -96,7 +99,7 @@ export default function DosenPerwalianList() {
                 setPage(0)
               }}
               displayEmpty
-              sx={{ minWidth: 200 }}
+              sx={{ minWidth: { xs: '100%', sm: 200 } }}
             >
               {STATUS_PERWALIAN_FILTER.map((s) => (
                 <MenuItem key={s.value} value={s.value}>
@@ -112,7 +115,7 @@ export default function DosenPerwalianList() {
                 setPage(0)
               }}
               displayEmpty
-              sx={{ minWidth: 180 }}
+              sx={{ minWidth: { xs: '100%', sm: 180 } }}
             >
               <MenuItem value="">Semua Tahun Akademik</MenuItem>
               {TA_OPTIONS.map((t) => (
@@ -126,13 +129,14 @@ export default function DosenPerwalianList() {
           ) : rows.length === 0 ? (
             <EmptyState icon={<EventNoteIcon sx={{ fontSize: 48 }} />} title="Tidak ada data perwalian" />
           ) : (
-            <Table>
+            <Box className="table-responsive">
+            <Table size="small">
               <TableHead>
                 <TableRow>
                   <TableCell>Tanggal</TableCell>
                   <TableCell>Mahasiswa</TableCell>
-                  <TableCell>NIM</TableCell>
-                  <TableCell>Semester</TableCell>
+                  <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>NIM</TableCell>
+                  <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Semester</TableCell>
                   <TableCell>Status</TableCell>
                   <TableCell align="right">Aksi</TableCell>
                 </TableRow>
@@ -142,8 +146,8 @@ export default function DosenPerwalianList() {
                   <TableRow key={row.id} hover>
                     <TableCell>{formatTanggalWaktu(row.created_at)}</TableCell>
                     <TableCell>{row.mahasiswa?.nama_lengkap}</TableCell>
-                    <TableCell>{row.mahasiswa?.nim}</TableCell>
-                    <TableCell>
+                    <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>{row.mahasiswa?.nim}</TableCell>
+                    <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
                       {row.tahun_akademik} ({SEMESTER_LABEL[row.semester]})
                     </TableCell>
                     <TableCell>
@@ -158,6 +162,7 @@ export default function DosenPerwalianList() {
                 ))}
               </TableBody>
             </Table>
+            </Box>
           )}
 
           <TablePagination

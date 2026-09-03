@@ -3,7 +3,7 @@ import Typography from '@mui/material/Typography'
 
 export default function EmptyState({ title = 'Belum ada data', subtitle, icon }) {
   return (
-    <Stack alignItems="center" spacing={1} sx={{ py: 6, color: 'text.secondary' }}>
+    <Stack spacing={1} sx={{ py: 6, color: 'text.secondary', alignItems: 'center' }}>
       {icon}
       <Typography variant="body1" sx={{ fontWeight: 600 }}>
         {title}

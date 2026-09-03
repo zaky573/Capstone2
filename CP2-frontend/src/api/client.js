@@ -28,7 +28,16 @@ client.interceptors.response.use(
   }
 )
 
-export const getErrorMessage = (error, fallback = 'Terjadi kesalahan. Silakan coba lagi.') =>
-  error?.response?.data?.message || error?.message || fallback
+export const getErrorMessage = (error, fallback = 'Terjadi kesalahan. Silakan coba lagi.') => {
+  const msg = error?.response?.data?.message
+  const errors = error?.response?.data?.errors
+  if (msg && errors && typeof errors === 'object') {
+    const details = Object.entries(errors)
+      .map(([field, msgs]) => `${field.replace(/_/g, ' ')}: ${Array.isArray(msgs) ? msgs.join(', ') : msgs}`)
+      .join('\n')
+    return `${msg}\n${details}`
+  }
+  return msg || error?.message || fallback
+}
 
 export default client

@@ -32,7 +32,7 @@ import { formatTanggalWaktu } from '../../utils/formatters'
 
 function InfoItem({ icon, label, value }) {
   return (
-    <Stack direction="row" spacing={1} alignItems="center">
+    <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
       {icon}
       <Box>
         <Typography variant="caption" color="text.secondary">{label}</Typography>
@@ -71,7 +71,7 @@ export default function DosenPerwalianDetail() {
     getPerwalianDetail(id)
       .then(({ data }) => {
         setData(data)
-        setCatatanDosen(data.catatan_dosen || '')
+        setCatatanDosen(data.komentar_dosen || '')
       })
       .catch((err) => snackbar.error(getErrorMessage(err)))
       .finally(() => setLoading(false))
@@ -80,7 +80,7 @@ export default function DosenPerwalianDetail() {
   const handleSaveCatatan = async () => {
     setSavingCatatan(true)
     try {
-      const res = await komentarPerwalian(id, { catatan_dosen: catatanDosen })
+      const res = await komentarPerwalian(id, { komentar_dosen: catatanDosen })
       setData(res.data)
       snackbar.success(res.message)
     } catch (err) {
@@ -125,12 +125,12 @@ export default function DosenPerwalianDetail() {
         subtitle={`Dibuat ${formatTanggalWaktu(data.created_at)} oleh ${data.mahasiswa?.nama_lengkap}`}
       />
 
-      <Grid container spacing={3}>
+      <Grid container spacing={{ xs: 2, sm: 3 }}>
         <Grid size={{ xs: 12, md: 8 }}>
-          <Stack spacing={3}>
+          <Stack spacing={{ xs: 2, sm: 3 }}>
             <Card>
-              <CardContent>
-                <Stack direction="row" justifyContent="space-between" alignItems="flex-start" flexWrap="wrap" gap={2}>
+              <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
+                <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap' }} gap={2}>
                   <Box>
                     <Typography variant="h5" sx={{ fontWeight: 700 }}>
                       {data.mahasiswa?.nama_lengkap}
@@ -173,23 +173,23 @@ export default function DosenPerwalianDetail() {
                   </Typography>
                   <Stack spacing={0.5} sx={{ mt: 1 }}>
                     {data.lokasi_pertemuan && (
-                      <Stack direction="row" spacing={1} alignItems="flex-start">
+                      <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start' }}>
                         <PlaceIcon fontSize="small" sx={{ color: '#8B6914', mt: 0.25 }} />
                         <Typography variant="body2">{data.lokasi_pertemuan}</Typography>
                       </Stack>
                     )}
-                    <Stack direction="row" spacing={1} alignItems="flex-start">
+                    <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start' }}>
                       <CalendarMonthIcon fontSize="small" sx={{ color: '#8B6914', mt: 0.25 }} />
                       <Typography variant="body2">{data.tanggal_ketemu}</Typography>
                     </Stack>
                     {data.jam_ketemu && (
-                      <Stack direction="row" spacing={1} alignItems="flex-start">
+                      <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start' }}>
                         <AccessTimeIcon fontSize="small" sx={{ color: '#8B6914', mt: 0.25 }} />
                         <Typography variant="body2">{data.jam_ketemu}</Typography>
                       </Stack>
                     )}
                     {data.catatan_jadwal && (
-                      <Stack direction="row" spacing={1} alignItems="flex-start">
+                      <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start' }}>
                         <StickyNote2Icon fontSize="small" sx={{ color: '#8B6914', mt: 0.25 }} />
                         <Typography variant="body2" color="text.secondary">{data.catatan_jadwal}</Typography>
                       </Stack>

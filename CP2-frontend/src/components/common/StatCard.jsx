@@ -18,16 +18,34 @@ export default function StatCard({ title, value, icon, color = 'primary', onClic
       }}
       onClick={onClick}
     >
-      <CardContent>
-        <Stack direction="row" alignItems="center" spacing={2}>
-          <Avatar sx={{ bgcolor: `${color}.main`, width: 48, height: 48 }} variant="rounded">
+      <CardContent sx={{ p: { xs: 1.5, sm: 2 }, '&:last-child': { pb: { xs: 1.5, sm: 2 } } }}>
+        <Stack direction="row" spacing={{ xs: 1.5, sm: 2 }} sx={{ alignItems: 'center' }}>
+          <Avatar
+            sx={{
+              bgcolor: `${color}.main`,
+              width: { xs: 40, sm: 48 },
+              height: { xs: 40, sm: 48 },
+            }}
+            variant="rounded"
+          >
             {icon}
           </Avatar>
-          <Box>
-            <Typography variant="body2" color="text.secondary">
+          <Box sx={{ minWidth: 0 }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ fontSize: { xs: '0.7rem', sm: '0.875rem' } }}
+            >
               {title}
             </Typography>
-            <Typography variant="h5" component="div" sx={{ fontWeight: 700 }}>
+            <Typography
+              variant="h5"
+              component="div"
+              sx={{
+                fontWeight: 700,
+                fontSize: { xs: '1.25rem', sm: '1.5rem' },
+              }}
+            >
               {value}
             </Typography>
           </Box>

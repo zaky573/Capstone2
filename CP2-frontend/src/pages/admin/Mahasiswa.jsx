@@ -53,6 +53,10 @@ import { getErrorMessage } from '../../api/client'
 import { PRODI_OPTIONS } from '../../utils/constants'
 import { formatKelamin } from '../../utils/formatters'
 
+const onlyDigits = (e) => {
+  e.target.value = e.target.value.replace(/\D/g, '')
+}
+
 const emptyForm = {
   nim: '',
   nama_lengkap: '',
@@ -172,9 +176,27 @@ export default function AdminMahasiswa() {
     }
   }
 
+  const isNumeric = (val) => /^\d+$/.test(val)
+
   const handleSave = async () => {
     if (!form.nim || !form.nama_lengkap || !form.program_studi || !form.angkatan || !form.semester) {
       setFormError('Kolom bertanda wajib harus diisi.')
+      return
+    }
+    if (!isNumeric(form.nim)) {
+      setFormError('Sistem tidak valid: NIM harus diisi angka.')
+      return
+    }
+    if (form.no_hp && !isNumeric(form.no_hp)) {
+      setFormError('Sistem tidak valid: No. HP harus diisi angka.')
+      return
+    }
+    if (!isNumeric(form.angkatan)) {
+      setFormError('Sistem tidak valid: Angkatan harus diisi angka.')
+      return
+    }
+    if (!isNumeric(form.semester)) {
+      setFormError('Sistem tidak valid: Semester harus diisi angka.')
       return
     }
     setSaving(true)
@@ -256,8 +278,36 @@ export default function AdminMahasiswa() {
   }
 
   const handlePrintPdf = async () => {
+    snackbar.info('Mengambil semua data mahasiswa untuk PDF...')
+
+    let allRows = []
+    try {
+      let currentPage = 1
+      let lastPage = 1
+      do {
+        const res = await getMahasiswa({
+          search,
+          prodi: filterProdi,
+          angkatan: filterAngkatan,
+          semester: filterSemester,
+          page: currentPage,
+          per_page: 100,
+        })
+        allRows = allRows.concat(res.data)
+        lastPage = res.meta?.last_page || 1
+        currentPage++
+      } while (currentPage <= lastPage)
+    } catch (err) {
+      snackbar.error('Gagal mengambil data: ' + getErrorMessage(err))
+      return
+    }
+
+    if (allRows.length === 0) {
+      snackbar.error('Tidak ada data untuk di-export.')
+      return
+    }
     const { default: jsPDF } = await import('jspdf')
-    const { default: html2canvas } = await import('html2canvas')
+    const { default: autoTable } = await import('jspdf-autotable')
 
     const filterInfo = [
       filterProdi ? `Prodi: ${filterProdi}` : '',
@@ -271,78 +321,92 @@ export default function AdminMahasiswa() {
       return parts.length > 0 ? parts.join(', ') : '-'
     }
 
-    const thS = 'background:#122C4E;color:#fff;padding:8px 10px;border:1px solid #0d1f38;text-align:left;'
-    const thC = 'background:#122C4E;color:#fff;padding:8px 10px;border:1px solid #0d1f38;text-align:center;'
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
+    const pageW = doc.internal.pageSize.getWidth()
 
-    const rows = dataRows.map((r, i) =>
-      `<tr style="background:${i % 2 === 0 ? '#f7f9fc' : '#fff'}">
-        <td style="padding:6px 8px;border:1px solid #ddd;text-align:center">${i + 1}</td>
-        <td style="padding:6px 8px;border:1px solid #ddd;white-space:nowrap">${r.nim || '-'}</td>
-        <td style="padding:6px 8px;border:1px solid #ddd">${r.nama_lengkap || '-'}</td>
-        <td style="padding:6px 8px;border:1px solid #ddd">${r.email || '-'}</td>
-        <td style="padding:6px 8px;border:1px solid #ddd;text-align:center">${r.jenis_kelamin === 'P' ? 'P' : 'L'}</td>
-        <td style="padding:6px 8px;border:1px solid #ddd">${ttl(r)}</td>
-        <td style="padding:6px 8px;border:1px solid #ddd">${r.program_studi || '-'}</td>
-        <td style="padding:6px 8px;border:1px solid #ddd;text-align:center">${r.angkatan || '-'}</td>
-        <td style="padding:6px 8px;border:1px solid #ddd;text-align:center">${r.semester || '-'}</td>
-        <td style="padding:6px 8px;border:1px solid #ddd">${r.dosen_wali?.nama_lengkap || '-'}</td>
-        <td style="padding:6px 8px;border:1px solid #ddd;white-space:nowrap">${r.no_hp || '-'}</td>
-        <td style="padding:6px 8px;border:1px solid #ddd">${r.alamat || '-'}</td>
-      </tr>`
-    ).join('')
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(16)
+    doc.setTextColor(18, 44, 78)
+    doc.text('Data Mahasiswa STMIK Bandung', pageW / 2, 15, { align: 'center' })
 
-    const container = document.createElement('div')
-    container.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1250px;background:#fff;padding:30px;font-family:Arial,sans-serif;font-size:11px;color:#111;'
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(10)
+    doc.setTextColor(100)
+    const subtitle = `Tanggal cetak: ${tanggal}${filterInfo ? '  |  Filter: ' + filterInfo : ''}  |  Total: ${allRows.length} data`
+    doc.text(subtitle, pageW / 2, 22, { align: 'center' })
 
-    container.innerHTML = `
-      <div style="text-align:center;margin-bottom:18px;padding-bottom:14px;border-bottom:3px solid #122C4E">
-        <h1 style="margin:0;font-size:20px;color:#122C4E">Data Mahasiswa STMIK Bandung</h1>
-        <p style="margin:4px 0 0;color:#666;font-size:12px">Tanggal cetak: ${tanggal}${filterInfo ? ' &bull; Filter: ' + filterInfo : ''}</p>
-      </div>
-      <table style="width:100%;border-collapse:collapse">
-        <thead>
-          <tr>
-            <th style="${thC};width:30px">No</th>
-            <th style="${thS};width:85px">NIM</th>
-            <th style="${thS}">Nama Lengkap</th>
-            <th style="${thS}">Email</th>
-            <th style="${thC};width:35px">L/P</th>
-            <th style="${thS};width:125px">Tempat, Tanggal Lahir</th>
-            <th style="${thS};width:130px">Program Studi</th>
-            <th style="${thC};width:55px">Angkatan</th>
-            <th style="${thC};width:55px">Semester</th>
-            <th style="${thS};width:130px">Dosen Wali</th>
-            <th style="${thS};width:85px">No. HP</th>
-            <th style="${thS}">Alamat</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rows || '<tr><td colspan="12" style="text-align:center;padding:12px;color:#999">Tidak ada data</td></tr>'}
-        </tbody>
-      </table>
-      <p style="text-align:center;color:#aaa;font-size:10px;margin-top:20px">Dokumen ini dibuat oleh Sistem Perwalian STMIK Bandung</p>
-    `
+    doc.setDrawColor(18, 44, 78)
+    doc.setLineWidth(0.5)
+    doc.line(14, 25, pageW - 14, 25)
 
-    document.body.appendChild(container)
-    try {
-      const canvas = await html2canvas(container, { scale: 2, useCORS: true, backgroundColor: '#fff' })
-      const imgData = canvas.toDataURL('image/png')
-      const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
-      const pageW = pdf.internal.pageSize.getWidth()
-      const pageH = pdf.internal.pageSize.getHeight()
-      const imgH = (canvas.height * pageW) / canvas.width
-      let posY = 0
-      let remainH = imgH
-      while (remainH > 0) {
-        pdf.addImage(imgData, 'PNG', 0, -posY, pageW, imgH)
-        remainH -= pageH
-        posY += pageH
-        if (remainH > 0) pdf.addPage()
-      }
-      pdf.save(`data-mahasiswa-${new Date().toISOString().slice(0, 10)}.pdf`)
-    } finally {
-      document.body.removeChild(container)
-    }
+    const head = [['No', 'NIM', 'Nama Lengkap', 'Email', 'L/P', 'Tempat, Tanggal Lahir', 'Program Studi', 'Angkatan', 'Semester', 'Dosen Wali', 'No. HP', 'Alamat']]
+
+    const body = allRows.map((r, i) => [
+      i + 1,
+      r.nim || '-',
+      r.nama_lengkap || '-',
+      r.email || '-',
+      r.jenis_kelamin === 'P' ? 'P' : 'L',
+      ttl(r),
+      r.program_studi || '-',
+      r.angkatan || '-',
+      r.semester || '-',
+      r.dosen_wali?.nama_lengkap || '-',
+      r.no_hp || '-',
+      r.alamat || '-',
+    ])
+
+    autoTable(doc, {
+      head,
+      body,
+      startY: 28,
+      tableWidth: 'fill',
+      margin: { left: 14, right: 14 },
+      styles: {
+        fontSize: 6.5,
+        cellPadding: 1.5,
+        overflow: 'linebreak',
+        font: 'helvetica',
+      },
+      headStyles: {
+        fillColor: [18, 44, 78],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold',
+        fontSize: 7,
+        halign: 'center',
+        cellPadding: 2,
+      },
+      alternateRowStyles: {
+        fillColor: [247, 249, 252],
+      },
+      columnStyles: {
+        0: { halign: 'center', cellWidth: '3%' },
+        1: { cellWidth: '8%' },
+        2: { cellWidth: '13%' },
+        3: { cellWidth: '12%' },
+        4: { halign: 'center', cellWidth: '3%' },
+        5: { cellWidth: '11%' },
+        6: { cellWidth: '13%' },
+        7: { halign: 'center', cellWidth: '6%' },
+        8: { halign: 'center', cellWidth: '7%' },
+        9: { cellWidth: '14%' },
+        10: { cellWidth: '8%' },
+      },
+      didDrawPage: (data) => {
+        const footerY = doc.internal.pageSize.getHeight() - 8
+        doc.setFontSize(8)
+        doc.setTextColor(170)
+        doc.text('Dokumen ini dibuat oleh Sistem Perwalian STMIK Bandung', pageW / 2, footerY, { align: 'center' })
+
+        doc.setFontSize(8)
+        doc.setTextColor(170)
+        const pageStr = `Halaman ${doc.internal.getCurrentPageInfo().pageNumber}`
+        doc.text(pageStr, pageW - 14, footerY, { align: 'right' })
+      },
+    })
+
+    doc.save(`data-mahasiswa-${new Date().toISOString().slice(0, 10)}.pdf`)
+    snackbar.success(`PDF berhasil diunduh (${allRows.length} data).`)
   }
 
   return (
@@ -352,21 +416,21 @@ export default function AdminMahasiswa() {
         subtitle={`Total ${meta.total} mahasiswa`}
         actions={
           <>
-            <Button variant="outlined" startIcon={<PrintIcon />} onClick={handlePrintPdf}>
-              Download PDF
+            <Button variant="outlined" startIcon={<PrintIcon />} onClick={handlePrintPdf} sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+              Export PDF
             </Button>
-            <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={() => setImportOpen(true)}>
+            <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={() => setImportOpen(true)} sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
               Import Excel
             </Button>
-            <Button variant="contained" startIcon={<AddIcon />} onClick={openCreate}>
-              Tambah Mahasiswa
+            <Button variant="contained" startIcon={<AddIcon />} onClick={openCreate} sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+              Tambah
             </Button>
           </>
         }
       />
 
       <Card>
-        <CardContent>
+        <CardContent sx={{ p: { xs: 1.5, sm: 2 }, '&:last-child': { pb: { xs: 1.5, sm: 2 } } }}>
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mb: 2 }}>
             <TextField
               size="small"
@@ -374,16 +438,18 @@ export default function AdminMahasiswa() {
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              sx={{ minWidth: 260 }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon fontSize="small" />
-                  </InputAdornment>
-                ),
+              sx={{ flex: 1, minWidth: 0 }}
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon fontSize="small" />
+                    </InputAdornment>
+                  ),
+                },
               }}
             />
-            <Button variant="outlined" onClick={handleSearch}>
+            <Button variant="outlined" onClick={handleSearch} sx={{ minWidth: { xs: 'auto', sm: 80 } }}>
               Cari
             </Button>
           </Stack>
@@ -391,12 +457,12 @@ export default function AdminMahasiswa() {
             <TextField
               select
               size="small"
-              label="Program Studi"
+              label="Prodi"
               value={filterProdi}
               onChange={(e) => { setFilterProdi(e.target.value); setPage(0) }}
-              sx={{ minWidth: 220 }}
+              sx={{ flex: 1, minWidth: 0 }}
             >
-              <MenuItem value="">Semua Prodi</MenuItem>
+              <MenuItem value="">Semua</MenuItem>
               {filterOptions.prodi.map((p) => (
                 <MenuItem key={p} value={p}>{p}</MenuItem>
               ))}
@@ -407,9 +473,9 @@ export default function AdminMahasiswa() {
               label="Angkatan"
               value={filterAngkatan}
               onChange={(e) => { setFilterAngkatan(e.target.value); setPage(0) }}
-              sx={{ minWidth: 140 }}
+              sx={{ flex: 1, minWidth: 0 }}
             >
-              <MenuItem value="">Semua Angkatan</MenuItem>
+              <MenuItem value="">Semua</MenuItem>
               {filterOptions.angkatan.map((a) => (
                 <MenuItem key={a} value={a}>{a}</MenuItem>
               ))}
@@ -420,11 +486,11 @@ export default function AdminMahasiswa() {
               label="Semester"
               value={filterSemester}
               onChange={(e) => { setFilterSemester(e.target.value); setPage(0) }}
-              sx={{ minWidth: 140 }}
+              sx={{ flex: 1, minWidth: 0 }}
             >
-              <MenuItem value="">Semua Semester</MenuItem>
+              <MenuItem value="">Semua</MenuItem>
               {filterOptions.semester.map((s) => (
-                <MenuItem key={s} value={s}>Semester {s}</MenuItem>
+                <MenuItem key={s} value={s}>Sem {s}</MenuItem>
               ))}
             </TextField>
           </Stack>
@@ -438,44 +504,46 @@ export default function AdminMahasiswa() {
               subtitle="Tambahkan mahasiswa baru atau impor dari Excel."
             />
           ) : (
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>NIM</TableCell>
-                  <TableCell>Nama</TableCell>
-                  <TableCell>Jenis Kelamin</TableCell>
-                  <TableCell>Prodi</TableCell>
-                  <TableCell>Angkatan</TableCell>
-                  <TableCell>Semester</TableCell>
-                  <TableCell>Dosen Wali</TableCell>
-                  <TableCell align="right">Aksi</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {dataRows.map((row) => (
-                  <TableRow key={row.id} hover sx={{ cursor: 'pointer' }} onClick={() => { setProfileDetail(row); setProfileOpen(true) }}>
-                    <TableCell>{row.nim}</TableCell>
-                    <TableCell sx={{ fontWeight: 500 }}>{row.nama_lengkap}</TableCell>
-                    <TableCell>{formatKelamin(row.jenis_kelamin)}</TableCell>
-                    <TableCell>{row.program_studi}</TableCell>
-                    <TableCell>{row.angkatan}</TableCell>
-                    <TableCell>{row.semester}</TableCell>
-                    <TableCell>{row.dosen_wali?.nama_lengkap || '-'}</TableCell>
-                    <TableCell align="right">
-                      <IconButton size="small" onClick={(e) => { e.stopPropagation(); openEdit(row) }}>
-                        <EditIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton size="small" color="error" onClick={(e) => { e.stopPropagation(); setDeleteTarget(row) }}>
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton size="small" color="warning" onClick={(e) => { e.stopPropagation(); setResetTarget(row) }}>
-                        <LockResetIcon fontSize="small" />
-                      </IconButton>
-                    </TableCell>
+            <Box className="table-responsive">
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>NIM</TableCell>
+                    <TableCell>Nama</TableCell>
+                    <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Kelamin</TableCell>
+                    <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>Prodi</TableCell>
+                    <TableCell sx={{ display: { xs: 'none', lg: 'table-cell' } }}>Angkatan</TableCell>
+                    <TableCell sx={{ display: { xs: 'none', lg: 'table-cell' } }}>Semester</TableCell>
+                    <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>Dosen Wali</TableCell>
+                    <TableCell align="right">Aksi</TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHead>
+                <TableBody>
+                  {dataRows.map((row) => (
+                    <TableRow key={row.id} hover sx={{ cursor: 'pointer' }} onClick={() => { setProfileDetail(row); setProfileOpen(true) }}>
+                      <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.nim}</TableCell>
+                      <TableCell sx={{ fontWeight: 500 }}>{row.nama_lengkap}</TableCell>
+                      <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{formatKelamin(row.jenis_kelamin)}</TableCell>
+                      <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>{row.program_studi}</TableCell>
+                      <TableCell sx={{ display: { xs: 'none', lg: 'table-cell' } }}>{row.angkatan}</TableCell>
+                      <TableCell sx={{ display: { xs: 'none', lg: 'table-cell' } }}>{row.semester}</TableCell>
+                      <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>{row.dosen_wali?.nama_lengkap || '-'}</TableCell>
+                      <TableCell align="right">
+                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); openEdit(row) }}>
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton size="small" color="error" onClick={(e) => { e.stopPropagation(); setDeleteTarget(row) }} sx={{ display: { xs: 'none', sm: 'inline-flex' } }}>
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton size="small" color="warning" onClick={(e) => { e.stopPropagation(); setResetTarget(row) }} sx={{ display: { xs: 'none', sm: 'inline-flex' } }}>
+                          <LockResetIcon fontSize="small" />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Box>
           )}
 
           <TablePagination
@@ -507,6 +575,7 @@ export default function AdminMahasiswa() {
               label="NIM *"
               value={form.nim}
               onChange={(e) => setForm({ ...form, nim: e.target.value })}
+              onInput={onlyDigits}
               fullWidth
             />
             <TextField
@@ -552,12 +621,14 @@ export default function AdminMahasiswa() {
                 label="Angkatan *"
                 value={form.angkatan}
                 onChange={(e) => setForm({ ...form, angkatan: e.target.value })}
+                onInput={onlyDigits}
                 fullWidth
               />
               <TextField
                 label="Semester *"
                 value={form.semester}
                 onChange={(e) => setForm({ ...form, semester: e.target.value })}
+                onInput={onlyDigits}
                 fullWidth
               />
             </Stack>
@@ -565,6 +636,7 @@ export default function AdminMahasiswa() {
               label="No. HP"
               value={form.no_hp}
               onChange={(e) => setForm({ ...form, no_hp: e.target.value })}
+              onInput={onlyDigits}
               fullWidth
             />
             <TextField
@@ -652,7 +724,7 @@ export default function AdminMahasiswa() {
               <Typography variant="subtitle2" fontWeight={600} gutterBottom>
                 File Import
               </Typography>
-              <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mt: 1 }}>
+              <Stack direction="row" spacing={1.5} sx={{ mt: 1, alignItems: 'center' }}>
                 <Button variant="contained" component="label" startIcon={<UploadFileIcon />}>
                   Pilih File Excel (.xlsx)
                   <input
@@ -725,7 +797,7 @@ export default function AdminMahasiswa() {
         <DialogContent>
           {profileDetail && (
             <Stack spacing={2} sx={{ mt: 1 }}>
-              <Stack direction="row" spacing={2} alignItems="center">
+              <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
                 <Avatar sx={{ width: 72, height: 72, bgcolor: '#4273B8', fontSize: 28 }}>
                   {profileDetail.foto ? (
                     <img src={profileDetail.foto} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />

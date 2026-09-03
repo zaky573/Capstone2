@@ -10,6 +10,7 @@ import TablePagination from '@mui/material/TablePagination'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
+import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Tooltip from '@mui/material/Tooltip'
 import MenuItem from '@mui/material/MenuItem'
@@ -38,12 +39,12 @@ export default function MahasiswaPerwalianList() {
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(0)
   const [searchInput, setSearchInput] = useState('')
-  const [semester, setSemester] = useState('')
+  const [filterTA, setFilterTA] = useState('')
 
   const fetchData = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await getMyPerwalian({ page: page + 1, search: searchInput, semester })
+      const res = await getMyPerwalian({ page: page + 1, search: searchInput, tahun_akademik: filterTA })
       setRows(res.data)
       setMeta(res.meta)
     } catch (err) {
@@ -51,7 +52,7 @@ export default function MahasiswaPerwalianList() {
     } finally {
       setLoading(false)
     }
-  }, [page, searchInput, semester, snackbar])
+  }, [page, searchInput, filterTA, snackbar])
 
   useEffect(() => {
     fetchData()
@@ -71,7 +72,7 @@ export default function MahasiswaPerwalianList() {
 
       <Card>
         <CardContent>
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mb: 2 }}>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 1.5, sm: 1 }} sx={{ mb: 2 }} useFlexGap>
             <TextField
               size="small"
               placeholder="Cari uraian atau komentar..."
@@ -80,21 +81,23 @@ export default function MahasiswaPerwalianList() {
               onKeyDown={(e) => {
                 if (e.key === 'Enter') { setPage(0); fetchData() }
               }}
-              sx={{ minWidth: 260 }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon fontSize="small" />
-                  </InputAdornment>
-                ),
+              sx={{ flex: 1, minWidth: 0 }}
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon fontSize="small" />
+                    </InputAdornment>
+                  ),
+                },
               }}
             />
             <Select
               size="small"
-              value={semester}
-              onChange={(e) => { setSemester(e.target.value); setPage(0) }}
+              value={filterTA}
+              onChange={(e) => { setFilterTA(e.target.value); setPage(0) }}
               displayEmpty
-              sx={{ minWidth: 200 }}
+              sx={{ minWidth: { xs: '100%', sm: 200 } }}
             >
               <MenuItem value="">
                 <em>Semua Tahun Akademik</em>
@@ -114,13 +117,14 @@ export default function MahasiswaPerwalianList() {
               subtitle="Klik tombol 'Buat Perwalian' untuk memulai."
             />
           ) : (
-            <Table>
+            <Box className="table-responsive">
+            <Table size="small">
               <TableHead>
                 <TableRow>
                   <TableCell>Tanggal</TableCell>
-                  <TableCell>Semester</TableCell>
+                  <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Semester</TableCell>
                   <TableCell>Uraian</TableCell>
-                  <TableCell>Komentar Dosen</TableCell>
+                  <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>Komentar Dosen</TableCell>
                   <TableCell>Status</TableCell>
                   <TableCell align="right">Aksi</TableCell>
                 </TableRow>
@@ -129,7 +133,7 @@ export default function MahasiswaPerwalianList() {
                 {rows.map((row) => (
                   <TableRow key={row.id} hover>
                     <TableCell>{formatTanggalWaktu(row.created_at)}</TableCell>
-                    <TableCell>
+                    <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
                       {row.tahun_akademik} ({SEMESTER_LABEL[row.semester]})
                     </TableCell>
                     <TableCell sx={{ maxWidth: 320 }}>
@@ -139,7 +143,7 @@ export default function MahasiswaPerwalianList() {
                         </Typography>
                       </Tooltip>
                     </TableCell>
-                    <TableCell sx={{ maxWidth: 220 }}>
+                    <TableCell sx={{ maxWidth: 220, display: { xs: 'none', md: 'table-cell' } }}>
                       {row.komentar_dosen ? (
                         <Tooltip title={row.komentar_dosen} placement="top" arrow>
                           <Typography variant="body2" sx={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', cursor: 'default' }}>
@@ -154,7 +158,7 @@ export default function MahasiswaPerwalianList() {
                       <StatusBadge status={row.status} />
                     </TableCell>
                     <TableCell align="right">
-                      <Stack direction="row" spacing={1} justifyContent="flex-end">
+                      <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end' }}>
                         {row.status === 'menunggu_verifikasi' && (
                           <Button size="small" onClick={() => navigate(`/mahasiswa/perwalian/${row.id}/edit`)}>
                             Edit
@@ -169,6 +173,7 @@ export default function MahasiswaPerwalianList() {
                 ))}
               </TableBody>
             </Table>
+            </Box>
           )}
 
           <TablePagination

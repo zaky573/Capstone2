@@ -13,3 +13,52 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Responsive table wrapper */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive table {
+  min-width: 600px;
+}
+
+/* Hide scrollbar but keep scroll functionality */
+.table-responsive::-webkit-scrollbar {
+  height: 6px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* Mobile-first responsive helpers */
+@media (max-width: 600px) {
+  .hide-mobile {
+    display: none !important;
+  }
+}
+
+@media (min-width: 601px) {
+  .show-mobile-only {
+    display: none !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .hide-tablet {
+    display: none !important;
+  }
+}

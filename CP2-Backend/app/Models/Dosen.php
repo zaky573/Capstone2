@@ -20,6 +20,10 @@ class Dosen extends Model
         'jenis_kelamin',
         'no_hp',
         'alamat',
+        'tempat_lahir',
+        'tanggal_lahir',
+        'pendidikan_jurusan',
+        'pendidikan_universitas',
     ];
 
     public function user(): BelongsTo

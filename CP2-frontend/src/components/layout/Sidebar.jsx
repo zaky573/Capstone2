@@ -42,7 +42,7 @@ const MENUS = {
 
 const DRAWER_WIDTH = 260
 
-function SidebarContent({ onNavigate }) {
+function SidebarContent({ onNavigate, collapsed }) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const menus = MENUS[user?.role] || []
@@ -54,7 +54,7 @@ function SidebarContent({ onNavigate }) {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', bgcolor: SIDEBAR_BG, color: '#fff' }}>
-      <Toolbar sx={{ gap: 1.5 }}>
+      <Toolbar sx={{ gap: 1.5, minHeight: { xs: 64, sm: 64 }, px: collapsed ? 1.5 : 2 }}>
         <Box
           sx={{
             width: 40,
@@ -69,17 +69,19 @@ function SidebarContent({ onNavigate }) {
         >
           <SchoolIcon sx={{ fontSize: 26, color: '#122C4E' }} />
         </Box>
-        <Box>
-          <Typography variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
-            STMIK Bandung
-          </Typography>
-          <Typography variant="caption" sx={{ color: '#AFC3DB' }}>
-            Sistem Perwalian
-          </Typography>
-        </Box>
+        {!collapsed && (
+          <Box sx={{ minWidth: 0 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1.2, whiteSpace: 'nowrap' }}>
+              STMIK Bandung
+            </Typography>
+            <Typography variant="caption" sx={{ color: '#AFC3DB', whiteSpace: 'nowrap' }}>
+              Sistem Perwalian
+            </Typography>
+          </Box>
+        )}
       </Toolbar>
       <Divider sx={{ borderColor: 'rgba(255,255,255,0.12)' }} />
-      <List sx={{ flexGrow: 1, pt: 1 }}>
+      <List sx={{ flexGrow: 1, pt: 1, px: collapsed ? 0.5 : 0 }}>
         {menus.map((menu) => (
           <ListItemButton
             key={menu.to}
@@ -89,7 +91,10 @@ function SidebarContent({ onNavigate }) {
             sx={{
               mb: 0.5,
               borderRadius: 1.5,
-              mx: 1,
+              mx: collapsed ? 0.5 : 1,
+              px: collapsed ? 0 : undefined,
+              justifyContent: collapsed ? 'center' : 'flex-start',
+              minHeight: 44,
               color: '#C9D8EA',
               '&.active': {
                 bgcolor: '#4273B8',
@@ -99,18 +104,30 @@ function SidebarContent({ onNavigate }) {
               '&:hover': { bgcolor: 'rgba(255,255,255,0.08)' },
             }}
           >
-            <ListItemIcon sx={{ color: 'inherit', minWidth: 40 }}>{menu.icon}</ListItemIcon>
-            <ListItemText primary={menu.label} primaryTypographyProps={{ fontSize: 14 }} />
+            <ListItemIcon sx={{ color: 'inherit', minWidth: collapsed ? 0 : 40, justifyContent: 'center' }}>
+              {menu.icon}
+            </ListItemIcon>
+            {!collapsed && <ListItemText primary={menu.label} slotProps={{ primary: { sx: { fontSize: 14, whiteSpace: 'nowrap' } } }} />}
           </ListItemButton>
         ))}
       </List>
       <Divider sx={{ borderColor: 'rgba(255,255,255,0.12)' }} />
-      <List>
-        <ListItemButton onClick={handleLogout} sx={{ color: '#F1A8A8', borderRadius: 1.5, mx: 1 }}>
-          <ListItemIcon sx={{ color: 'inherit', minWidth: 40 }}>
+      <List sx={{ px: collapsed ? 0.5 : 0 }}>
+        <ListItemButton
+          onClick={handleLogout}
+          sx={{
+            color: '#F1A8A8',
+            borderRadius: 1.5,
+            mx: collapsed ? 0.5 : 1,
+            px: collapsed ? 0 : undefined,
+            justifyContent: collapsed ? 'center' : 'flex-start',
+            minHeight: 44,
+          }}
+        >
+          <ListItemIcon sx={{ color: 'inherit', minWidth: collapsed ? 0 : 40, justifyContent: 'center' }}>
             <LogoutIcon />
           </ListItemIcon>
-          <ListItemText primary="Keluar" primaryTypographyProps={{ fontSize: 14 }} />
+          {!collapsed && <ListItemText primary="Keluar" slotProps={{ primary: { sx: { fontSize: 14 } } }} />}
         </ListItemButton>
       </List>
     </Box>
@@ -120,6 +137,7 @@ function SidebarContent({ onNavigate }) {
 export default function Sidebar({ mobileOpen, onClose }) {
   return (
     <Box component="nav" sx={{ width: { md: DRAWER_WIDTH }, flexShrink: { md: 0 } }}>
+      {/* Mobile drawer */}
       <Drawer
         variant="temporary"
         open={mobileOpen}
@@ -132,6 +150,7 @@ export default function Sidebar({ mobileOpen, onClose }) {
       >
         <SidebarContent onNavigate={onClose} />
       </Drawer>
+      {/* Desktop permanent drawer */}
       <Drawer
         variant="permanent"
         open

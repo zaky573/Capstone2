@@ -16,6 +16,10 @@ class UpdateStatusRequest extends FormRequest
     {
         return [
             'status' => ['required', Rule::in(['diverifikasi', 'selesai'])],
+            'tanggal_ketemu' => ['nullable', 'string', 'max:10'],
+            'jam_ketemu' => ['nullable', 'string', 'max:5'],
+            'lokasi_pertemuan' => ['nullable', 'string', 'max:255'],
+            'catatan_jadwal' => ['nullable', 'string', 'max:2000'],
         ];
     }
 }

@@ -104,7 +104,7 @@ class PerwalianService
         return $perwalian->load('mahasiswa.dosenWali');
     }
 
-    public function updateStatus(Perwalian $perwalian, string $status): Perwalian
+    public function updateStatus(Perwalian $perwalian, string $status, array $jadwal = []): Perwalian
     {
         if (! in_array($status, [PerwalianStatus::DIVERIFIKASI->value, PerwalianStatus::SELESAI->value], true)) {
             throw ValidationException::withMessages([
@@ -112,10 +112,21 @@ class PerwalianService
             ]);
         }
 
-        $perwalian->forceFill([
+        $payload = [
             'status' => $status,
             'verified_at' => now(),
-        ])->save();
+        ];
+
+        if ($status === PerwalianStatus::DIVERIFIKASI->value) {
+            $payload = array_merge($payload, array_filter([
+                'tanggal_ketemu' => $jadwal['tanggal_ketemu'] ?? null,
+                'jam_ketemu' => $jadwal['jam_ketemu'] ?? null,
+                'lokasi_pertemuan' => $jadwal['lokasi_pertemuan'] ?? null,
+                'catatan_jadwal' => $jadwal['catatan_jadwal'] ?? null,
+            ], fn($v) => $v !== null && $v !== ''));
+        }
+
+        $perwalian->forceFill($payload)->save();
 
         return $perwalian->load('mahasiswa.dosenWali');
     }

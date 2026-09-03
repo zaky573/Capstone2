@@ -48,13 +48,15 @@ export default function MahasiswaDashboard() {
   }, [snackbar])
 
   if (loading) return <Loading />
+  if (!data) return <EmptyState title="Data tidak ditemukan" subtitle="Silakan hubungi admin." icon={<SchoolIcon sx={{ fontSize: 48 }} />} />
 
   const { mahasiswa, dosen_wali, perwalian_terakhir } = data
   const inisial = (mahasiswa.nama_lengkap || '?').split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase()
   const inisialDosen = dosen_wali?.nama_lengkap?.charAt(0)?.toUpperCase() || 'D'
 
+  const selesaiCount = data.selesai ?? 0
   const completionRate = data.total_perwalian > 0
-    ? Math.round(((data.total_perwalian - data.menunggu_verifikasi) / data.total_perwalian) * 100)
+    ? Math.round((selesaiCount / data.total_perwalian) * 100)
     : 0
 
   return (
@@ -91,7 +93,7 @@ export default function MahasiswaDashboard() {
         <Box sx={{ position: 'absolute', bottom: -30, right: 60, width: 100, height: 100, borderRadius: '50%', background: 'rgba(255,255,255,0.04)' }} />
 
         <CardContent sx={{ p: { xs: 2.5, sm: 3.5 }, position: 'relative', zIndex: 1 }}>
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3} alignItems={{ xs: 'flex-start', sm: 'center' }}>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3} sx={{ alignItems: { xs: 'flex-start', sm: 'center' } }}>
             <Avatar
               sx={{
                 width: 88,
@@ -114,7 +116,7 @@ export default function MahasiswaDashboard() {
                 {mahasiswa.nama_lengkap}
               </Typography>
 
-              <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mb: 1.5 }}>
+              <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', useFlexGap: true, mb: 1.5 }}>
                 <Chip
                   icon={<BadgeIcon sx={{ color: 'rgba(255,255,255,0.8) !important', fontSize: '14px !important' }} />}
                   label={`NIM: ${mahasiswa.nim}`}
@@ -136,10 +138,10 @@ export default function MahasiswaDashboard() {
               </Stack>
 
               {/* Progress Bar */}
-              <Stack direction="row" spacing={1.5} alignItems="center">
+                <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
                 <Box sx={{ flex: 1, maxWidth: 240 }}>
                   <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)', mb: 0.5, display: 'block' }}>
-                    Progress Perwalian
+                    Persentase Perwalian Selesai 
                   </Typography>
                   <LinearProgress
                     variant="determinate"
@@ -162,11 +164,11 @@ export default function MahasiswaDashboard() {
       </Card>
 
       {/* Stat Cards */}
-      <Grid container spacing={2} sx={{ mb: 3 }}>
+      <Grid container spacing={{ xs: 1.5, sm: 2 }} sx={{ mb: 3 }}>
         <Grid size={{ xs: 6, md: 3 }}>
           <Card sx={{ height: '100%', borderRadius: 2.5, border: '1px solid #E8F0FE', background: 'linear-gradient(135deg, #EEF2FF 0%, #fff 100%)' }}>
             <CardContent>
-              <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+              <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <Box>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>Total Perwalian</Typography>
                   <Typography variant="h3" sx={{ fontWeight: 800, color: '#4273B8', lineHeight: 1 }}>{data.total_perwalian}</Typography>
@@ -185,7 +187,7 @@ export default function MahasiswaDashboard() {
         <Grid size={{ xs: 6, md: 3 }}>
           <Card sx={{ height: '100%', borderRadius: 2.5, border: '1px solid #FEF3C7', background: 'linear-gradient(135deg, #FFF8E1 0%, #fff 100%)' }}>
             <CardContent>
-              <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+              <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <Box>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>Menunggu Verifikasi</Typography>
                   <Typography variant="h3" sx={{ fontWeight: 800, color: '#D97706', lineHeight: 1 }}>{data.menunggu_verifikasi}</Typography>
@@ -204,11 +206,11 @@ export default function MahasiswaDashboard() {
         <Grid size={{ xs: 6, md: 3 }}>
           <Card sx={{ height: '100%', borderRadius: 2.5, border: '1px solid #D1FAE5', background: 'linear-gradient(135deg, #ECFDF5 0%, #fff 100%)' }}>
             <CardContent>
-              <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+              <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <Box>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>Selesai</Typography>
                   <Typography variant="h3" sx={{ fontWeight: 800, color: '#059669', lineHeight: 1 }}>
-                    {data.total_perwalian - data.menunggu_verifikasi}
+                    {data.selesai ?? 0}
                   </Typography>
                 </Box>
                 <Box sx={{ width: 44, height: 44, borderRadius: '50%', bgcolor: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -225,7 +227,7 @@ export default function MahasiswaDashboard() {
         <Grid size={{ xs: 6, md: 3 }}>
           <Card sx={{ height: '100%', borderRadius: 2.5, border: '1px solid #EDE9FE', background: 'linear-gradient(135deg, #F5F3FF 0%, #fff 100%)' }}>
             <CardContent>
-              <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+              <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <Box>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>Semester Aktif</Typography>
                   <Typography variant="h3" sx={{ fontWeight: 800, color: '#7C3AED', lineHeight: 1 }}>{mahasiswa.semester}</Typography>
@@ -249,7 +251,7 @@ export default function MahasiswaDashboard() {
           <Card sx={{ height: '100%', borderRadius: 2.5 }}>
             <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', mb: 2.5 }}>
-                <Stack direction="row" spacing={1.5} alignItems="center">
+              <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
                   <Box sx={{ width: 36, height: 36, borderRadius: '50%', bgcolor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <HistoryIcon sx={{ fontSize: 20, color: '#4273B8' }} />
                   </Box>
@@ -324,7 +326,7 @@ export default function MahasiswaDashboard() {
         <Grid size={{ xs: 12, md: 5 }}>
           <Card sx={{ height: '100%', borderRadius: 2.5, border: '1px solid #FEF3C7' }}>
             <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-              <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 2.5 }}>
+              <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', mb: 2.5 }}>
                 <Box sx={{ width: 36, height: 36, borderRadius: '50%', bgcolor: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <PersonIcon sx={{ fontSize: 20, color: '#D97706' }} />
                 </Box>
@@ -342,7 +344,7 @@ export default function MahasiswaDashboard() {
                       border: '1px solid #FDE68A',
                     }}
                   >
-                    <Stack direction="row" spacing={2} alignItems="center">
+                    <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
                       <Avatar
                         sx={{
                           width: 60,
@@ -377,31 +379,33 @@ export default function MahasiswaDashboard() {
                   {/* Kontak Info */}
                   <Stack spacing={1.8} sx={{ p: 2, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #E2E8F0' }}>
                     {/* Email */}
-                    <Stack direction="row" spacing={2} alignItems="center">
+                    <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
                       <Box sx={{ width: 34, height: 34, borderRadius: '50%', bgcolor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <EmailIcon sx={{ fontSize: 17, color: '#4273B8' }} />
                       </Box>
                       <Box sx={{ minWidth: 0, flex: 1 }}>
                         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.2 }}>Email Dosen</Typography>
+                        {dosen_wali.email ? (
                         <Typography
-                          component="a"
-                          href={`mailto:${dosen_wali.email || 'dosen@stmikbandung.ac.id'}`}
                           variant="body2"
                           sx={{
                             fontWeight: 600,
                             color: '#4273B8',
-                            textDecoration: 'none',
                             wordBreak: 'break-all',
-                            '&:hover': { textDecoration: 'underline' },
                           }}
                         >
-                          {dosen_wali.email || 'dosen@stmikbandung.ac.id'}
+                          {dosen_wali.email}
                         </Typography>
+                        ) : (
+                        <Typography variant="body2" color="text.secondary">
+                          Belum tersedia
+                        </Typography>
+                        )}
                       </Box>
                     </Stack>
 
                     {/* No Telepon / WA */}
-                    <Stack direction="row" spacing={2} alignItems="center">
+                    <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
                       <Box sx={{ width: 34, height: 34, borderRadius: '50%', bgcolor: '#ECFDF5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <PhoneIcon sx={{ fontSize: 17, color: '#059669' }} />
                       </Box>
@@ -425,7 +429,7 @@ export default function MahasiswaDashboard() {
 
                     {/* Alamat / Ruangan */}
                     {dosen_wali.alamat && (
-                      <Stack direction="row" spacing={2} alignItems="flex-start">
+                      <Stack direction="row" spacing={2} sx={{ alignItems: 'flex-start' }}>
                         <Box sx={{ width: 34, height: 34, borderRadius: '50%', bgcolor: '#FFF8E1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, mt: 0.3 }}>
                           <LocationOnIcon sx={{ fontSize: 17, color: '#D97706' }} />
                         </Box>
@@ -439,17 +443,6 @@ export default function MahasiswaDashboard() {
 
                   {/* Tombol Hubungi */}
                   <Stack direction="row" spacing={1.5}>
-                    <Button
-                      component="a"
-                      href={`mailto:${dosen_wali.email || 'dosen@stmikbandung.ac.id'}`}
-                      variant="outlined"
-                      size="small"
-                      startIcon={<EmailIcon />}
-                      fullWidth
-                      sx={{ borderRadius: 1.5, fontSize: '0.82rem', textTransform: 'none', py: 0.8 }}
-                    >
-                      Kirim Email
-                    </Button>
                     {dosen_wali.no_hp && (
                       <Button
                         component="a"
