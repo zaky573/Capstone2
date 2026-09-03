@@ -50,3 +50,10 @@ Homestead.yaml
 .phpunit.result.cache
 .phpunit.cache
 auth.json
+
+# Database dumps (jangan push ke GitHub, cukup kirim via ZIP pengumpulan)
+*.sql
+*.backup
+*.dump
+database_perwalian.*
+**/database_perwalian.*
